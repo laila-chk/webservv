@@ -20,7 +20,7 @@ class locations {
     std::string redir_path;
     std::string root;
     bool autoindex;
-    std::vector<std::string> def;
+    std::vector<std::string> def_files;
     std::vector<std::pair<std::string, std::string> > cgi;
     locations();
     ~locations();
