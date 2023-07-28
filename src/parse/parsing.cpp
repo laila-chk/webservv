@@ -49,7 +49,7 @@ bool is_valid_address(std::string address)
     }
     if (address[i] == ':')
     {
-      if (octets != 3 || !is_num(octet))
+      if (octets != 3 || !is_num(octet) || i == address.length() - 1)
         return false;
       range = stoi(octet);
       if (range > 255)
@@ -59,18 +59,19 @@ bool is_valid_address(std::string address)
     if (isdigit(address[i]))
       octet += address[i];
   }
-  if (!is_num(octet))
+  if (!is_num(octet) || octets != 3)
     return false;
   return true;
 }
 
-bool directive(std::string buff, std::vector<std::string> serv_dirs,
-    Config &srv, bool inLoc, int ii) {
+bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv, bool inLoc, int ii) 
+{
   if (!buff.compare("{"))
     return true;
   int j = 0;
-
+  std::string port;
   std::vector<std::string> words;
+
   for (size_t i = 0; i < buff.length(); i++) {
     if (buff[i] == ' ' || buff[i] == '\t' || buff[i] == ';') {
       words.push_back(buff.substr(j, i - j));
@@ -81,27 +82,39 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs,
   }
 
   for (size_t i = 0; i < serv_dirs.size(); i++) {
-    // std::cout << words[0]<< std::endl;
     if (!inLoc && !words[0].compare(serv_dirs[i])) {
       if (!words[0].compare("server_name"))
+      {
+        if (words.size() != 2)
+          ft_perr("Error: bad server_name format!");
         srv.server_name = words[1];
+      }
       else if (!words[0].compare("listen"))
       {
+        if (words.size() != 2)
+          ft_perr("Error: bad address format!");
         if (!is_valid_address(words[1]))
-        {
-          std::cout << words[1] << std::endl;
           ft_perr("Error: Invalid address!");
-        }
 
         size_t k = 0;
         while (k < words[1].length() && words[1][k] != ':')
           srv.address += words[1][k++];
         k++;
         while (k < words[1].length())
-          srv.port += words[1][k++];
+          port += words[1][k++];
+        if (port.length())
+          srv.port = stoi(port);
+        else
+          srv.port = -1;
       }
       else if (!words[0].compare("client_max_body_size"))
-        srv.client_max_body_size = words[1];
+      {
+        if (words.size() != 2)
+          ft_perr("Error: bad client_max_body_size format!");
+        if (!is_num(words[1]))
+          ft_perr("Error: client_max_body_size should be a number!");
+        srv.client_max_body_size = stoi(words[1]);
+      }
       else if (!words[0].compare("error_page"))
       {
         for (size_t x  = 1; x < words.size(); x++)
@@ -115,26 +128,34 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs,
       return true;
     } else if (inLoc && !words[0].compare(serv_dirs[i])) {
       if (!words[0].compare("pattern"))
+      {
+        if (words.size() != 2)
+          ft_perr("Error: bad pattern format!");
         srv.loc[ii].pattern = words[1];
+      }
 
       else if (!words[0].compare("limit_except"))
         srv.loc[ii].methods = words[1];
-
       else if (!words[0].compare("return"))
       {
         if (words.size() != 3 || !is_num(words[1]))
           ft_perr("Error: bad redirection!");
         srv.loc[ii].redir_path = words[2];
       }
-
       else if (!words[0].compare("root"))
       {
         if (words.size() != 2)
-          ft_perr("Error! root bad format!");
+          ft_perr("Error! Bad root format!");
         srv.loc[ii].root = words[1];
       }
       else if (!words[0].compare("autoindex"))
-        srv.loc[ii].autoindex = true;
+      {
+        if (words.size() != 2 || (words[1].compare("on") && words[1].compare("off")))
+          ft_perr("Error! bad autoindex format!");
+        srv.loc[ii].autoindex = false;
+        if (!words[1].compare("on"))
+          srv.loc[ii].autoindex = true;
+      }
       else if (!words[0].compare("index"))
         srv.loc[ii].def.push_back(words[1]);
 
@@ -143,7 +164,6 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs,
           ft_perr("Error: cgi bad format!");
         srv.loc[ii].cgi.push_back(make_pair(words[1], words[2]));
       }
-
       return true;
     }
   }
@@ -235,3 +255,4 @@ void Serv_block_init(std::vector<Config> &srvs, std::string path) {
   if (inSer || inLoc)
     ft_perr("Error: missing Bracket!");
 }
+

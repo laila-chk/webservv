@@ -15,6 +15,7 @@ class locations {
   private:
   public:
     std::string pattern;
+    //if a method is not allowed a 405 err page
     std::string methods;
     std::string redir_path;
     std::string root;
@@ -31,11 +32,11 @@ class Config {
   public:
     std::vector<locations> loc;
     std::string address;
-    std::string port;
+    //if the port isn't determined in the config file, port will take the value -1
+    int         port;
     std::string host;
     std::string server_name;
-    // int client_max_body_size;
-    std::string client_max_body_size;
+     int client_max_body_size;
     std::map<int, std::string> error_pages;
     Config();
     ~Config();
