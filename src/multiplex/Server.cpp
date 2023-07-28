@@ -40,7 +40,7 @@ void Server::init(char *filename) {
 
     if (filename)
         path = std::string(filename);
-    contexts_count(configs, path);
+    Serv_block_init(configs, path);
     for (it = configs.begin(); it != configs.end(); it++) {
         _clusters.push_back(new Cluster(*it));
     }

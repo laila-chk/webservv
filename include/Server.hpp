@@ -44,6 +44,6 @@ class Server {
         void    stop(void);
 };
 
-void contexts_count(std::vector<Config> &srvs, std::string path); // config file paring function
+void Serv_block_init(std::vector<Config> &srvs, std::string path); // config file paring function
 
 #endif

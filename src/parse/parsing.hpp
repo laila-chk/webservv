@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <iostream>
 
 class locations {
   private:
@@ -19,7 +20,7 @@ class locations {
     std::string root;
     bool autoindex;
     std::vector<std::string> def;
-    std::vector<std::pair<std::string, std::string> > cgi; // vec.push_back(make_pair(string, string2);
+    std::vector<std::pair<std::string, std::string> > cgi;
     locations();
     ~locations();
 };
@@ -35,13 +36,8 @@ class Config {
     // int client_max_body_size;
     std::string client_max_body_size;
     std::map<int, std::string> error_pages;
-
-    // error pages are missing here;
     Config();
     ~Config();
 };
-//should be done:
-//    store err pages 
-//    check for invalid args in other attributes/amount
 
 #endif
