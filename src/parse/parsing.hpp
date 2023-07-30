@@ -16,7 +16,7 @@ class locations {
   public:
     std::string pattern;
     //if a method is not allowed a 405 err page
-    std::string methods;
+    std::vector<std::string> methods;
     std::string redir_path;
     std::string root;
     bool autoindex;

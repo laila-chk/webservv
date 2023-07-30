@@ -137,7 +137,10 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
       }
 
       else if (!words[0].compare("limit_except"))
-        srv.loc[ii].methods = words[1];
+      {
+        for (size_t x = 1; x < words.size(); x++)
+        srv.loc[ii].methods.push_back(words[x]);
+      }
       else if (!words[0].compare("return"))
       {
         if (words.size() != 3 || !is_num(words[1]))
