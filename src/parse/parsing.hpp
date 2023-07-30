@@ -33,10 +33,10 @@ class Config {
   private:
   public:
     std::vector<locations> loc;
+    // address is set to "" in case not found in conf file
     std::string address;
     //if the port isn't determined in the config file, port will take the value -1
     int         port;
-    std::string host;
     std::string server_name;
      int client_max_body_size;
     std::map<int, std::string> error_pages;

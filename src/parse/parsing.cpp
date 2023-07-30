@@ -93,19 +93,28 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
       {
         if (words.size() != 2)
           ft_perr("Error: bad address format!");
-        if (!is_valid_address(words[1]))
-          ft_perr("Error: Invalid address!");
-
-        size_t k = 0;
-        while (k < words[1].length() && words[1][k] != ':')
-          srv.address += words[1][k++];
-        k++;
-        while (k < words[1].length())
-          port += words[1][k++];
-        if (port.length())
-          srv.port = stoi(port);
+        //case 0f port only:
+        if (words[1].length() && words[1].length() <= 5 && is_num(words[1]))
+        {
+          srv.address = "";
+          srv.port = stoi(words[1]);
+        }
         else
-          srv.port = -1;
+        {
+          if (!is_valid_address(words[1]))
+            ft_perr("Error: Invalid address!");
+
+          size_t k = 0;
+          while (k < words[1].length() && words[1][k] != ':')
+            srv.address += words[1][k++];
+          k++;
+          while (k < words[1].length())
+            port += words[1][k++];
+          if (port.length())
+            srv.port = stoi(port);
+          else
+            srv.port = -1;
+        }
       }
       else if (!words[0].compare("client_max_body_size"))
       {
@@ -139,7 +148,7 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
       else if (!words[0].compare("limit_except"))
       {
         for (size_t x = 1; x < words.size(); x++)
-        srv.loc[ii].methods.push_back(words[x]);
+          srv.loc[ii].methods.push_back(words[x]);
       }
       else if (!words[0].compare("return"))
       {
