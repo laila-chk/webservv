@@ -123,6 +123,8 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
             ft_perr("Error: error code should be a number!");
           if (x == words.size() - 1 && (is_num(words[x]) || words[x].compare(words[x].length() - 5, 5, ".html")))
             ft_perr("Error: error_page file is invalid!");
+          if (is_num(words[x]))
+            srv.error_pages[stoi(words[x])] = words[words.size()-1];
         }
       }
       return true;
@@ -162,6 +164,7 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
       else if (!words[0].compare("cgi")) {
         if (words.size() != 3)
           ft_perr("Error: cgi bad format!");
+        //  srv.loc[ii].cgi
         srv.loc[ii].cgi.push_back(make_pair(words[1], words[2]));
       }
       return true;
@@ -255,4 +258,3 @@ void Serv_block_init(std::vector<Config> &srvs, std::string path) {
   if (inSer || inLoc)
     ft_perr("Error: missing Bracket!");
 }
-
