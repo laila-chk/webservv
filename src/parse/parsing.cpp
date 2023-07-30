@@ -162,10 +162,15 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
         srv.loc[ii].def_files.push_back(words[1]);
 
       else if (!words[0].compare("cgi")) {
-        if (words.size() != 3)
+        if (words.size() != 3 || words[1][0] != '.')
           ft_perr("Error: cgi bad format!");
-        //  srv.loc[ii].cgi
-        srv.loc[ii].cgi.push_back(make_pair(words[1], words[2]));
+
+        std::string key;
+        //skippin the '.' in the begining of an extention.
+        for (size_t x = 1; x < words[1].length(); x++)
+          key += words[1][x];
+        srv.loc[ii].cgi[key] = words[2];
+        //srv.loc[ii].cgi.push_back(make_pair(words[1], words[2]));
       }
       return true;
     }

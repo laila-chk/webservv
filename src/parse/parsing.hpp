@@ -22,8 +22,8 @@ class locations {
     bool autoindex;
     std::vector<std::string> def_files;
     //Change from vec of pairs into map for easier handling + bonus
-    std::vector<std::pair<std::string, std::string> > cgi;
-//    std::map<std::string, std::string> cgi;
+//    std::vector<std::pair<std::string, std::string> > cgi;
+    std::map<std::string, std::string> cgi;
     locations();
     ~locations();
 };
