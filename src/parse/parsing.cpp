@@ -13,7 +13,7 @@ locations::locations() {}
 locations::~locations() {}
 
 void ft_perr(std::string msg) {
-  std::cout << msg << std::endl;
+  std::cerr << msg << std::endl;
   exit(1);
 }
 
