@@ -3,12 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/07/22 21:15:23 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/07/31 12:28:08 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Response.hpp"
+#include "../../include/Response.hpp"
+
+
+void Response:: check_head(Config _config, Request request){
+    
+}
+
+
 
