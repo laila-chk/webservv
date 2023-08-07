@@ -50,6 +50,9 @@ void    Client::recieve(void) {
 void    Client::sending(void) {
     if (!_done_recv)
         return;
+  // check for bad request 
+  // match the location
+  // response
 
     std::string res("HTTP/1.1 200 OK\n\
     Content-Type: text/html\n\
@@ -60,4 +63,3 @@ void    Client::sending(void) {
     _done_send = true;
 }
 
-// TODO:  parse the path in the request 
