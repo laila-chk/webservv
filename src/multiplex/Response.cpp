@@ -6,14 +6,14 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/05 14:29:15 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/08 11:29:53 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-Response::Response(Cluster *cluster) : _cluster(cluster) {
-}
+// Response::Response(Cluster *cluster) : _cluster(cluster) {
+// }
 
 Response::~Response() {
 }
@@ -47,6 +47,58 @@ std::string Request::getContentType()
 		return content[""];
 
 }
+
+std::string Response:: getStatusMsg(int status)
+{
+    switch(status)
+	{
+		case OK:
+			return "OK";
+		case CREATED:
+			return "Created";
+		case NO_CONTENT:
+			return "No Content";
+		case BAD_REQUEST:
+			return "Bad Request";
+		case FORBIDDEN:
+			return "Forbidden";
+		case NOT_FOUND:
+			return "Not Found";
+        case MOVED_PERMANENTLY:
+            return "Moved permanently";
+		case NOT_IMPLEMENTED:
+			return "Not Implemented";
+		case METHOD_NOT_ALLOWED:
+			return "Not Allowed";
+		case REQUEST_ENTITY_TOO_LARGE:
+			return "Request Entity Too Large";
+		case REQUEST_URI_TOO_LARGE:
+			return "Request URI Too Large";
+		default:
+			throw std::runtime_error("Unknown status code" + std::to_string(status));
+	}
+}
+
+// void Response::setBodySize(off_t size)
+// {
+// 	this->_body_size = size;
+// }
+void Response::toString(std::string const  &type)
+{
+	this->_header += "HTTP/1.1 ";
+	this->_header += std::to_string(this->_status_code) + " " + getStatusMsg(this->_status_code);
+	this->_header += "\r\n";
+	if (this->_location != "")
+	{
+		this->_header += "Location: " + this->_location + "\r\n";
+		this->_header += std::string("Connection: close") + "\r\n\r\n";
+		return ;
+	}
+	this->_header += "Content-Type: " + type + "\r\n";
+	this->_header += "Content-Length: " + std::to_string(this->_body_size) + "\r\n";
+	this->_header += std::string("Connection: close") + "\r\n\r\n";
+}
+
 
 // int Response:: get_methode(Config &config_file)
 // {
