@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "Response.hpp"
-
 // Response::Response(Cluster *cluster) : _cluster(cluster) {
 // }
 
@@ -48,7 +47,7 @@ std::string Request::getContentType()
 
 }
 
-std::string Response:: getStatusMsg(int status)
+std::string Response::getStatusMsg(int status)
 {
     switch(status)
 	{
@@ -105,15 +104,15 @@ void Response::toString(std::string const  &type)
 
 // }
 
-// ----- RESPONSE EXAMPL -----
+void  Response::GET(Client *cl) {
+  (void)cl;
+}
 
-// HTTP/1.1 200 OK
-// Date: Mon, 27 Jul 2009 12:28:53 GMT
-// Server: Apache/2.2.14 (Win32)
-// Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
-// ETag: "34aa387-d-1568eb00"
-// Vary: Authorization,Accept
-// Accept-Ranges: bytes
-// Content-Length: 88
-// Content-Type: text/html
-// Connection: Closed
+void Response::POST(Client *cl) {
+  (void)cl;
+}
+
+void Response::DELETE(Client *cl) {
+  (void)cl;
+}
+

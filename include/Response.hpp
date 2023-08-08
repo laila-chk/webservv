@@ -16,12 +16,15 @@
 #include "include.hpp"
 #include "Cluster.hpp"
 #include "Request.hpp"
+#include "Client.hpp"
+
+class Client;
 
 enum ERRORS {
 		OK                    	  = 200,
 		CREATED               	  = 201,
 		NO_CONTENT            	  = 204,
-        MOVED_PERMANENTLY     	  = 301,
+    MOVED_PERMANENTLY     	  = 301,
 		BAD_REQUEST           	  = 400,
 		UNAUTHORIZED          	  = 401,
 		FORBIDDEN             	  = 403,
@@ -52,6 +55,10 @@ class Response {
         std::string getContentType();
         int get_methode(Config &config_file);
         ~Response(void);
+
+        void  GET(Client *cl);
+        void  POST(Client *cl);
+        void  DELETE(Client *cl);
 };
 
 

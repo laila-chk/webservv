@@ -18,7 +18,7 @@ Client::Client(Cluster *cluster) : _cluster(cluster) {
     _done_send = false;
     _socket = accept(_cluster->get_listen_fd(), (struct sockaddr *)_cluster->get_address(), (socklen_t*)_cluster->get_addrlen());
     _req = new Request;
-    _res = new Response(cluster); 
+    _res = new Response; 
 }
 
 // Destructor
@@ -50,10 +50,20 @@ void    Client::recieve(void) {
 void    Client::sending(void) {
     if (!_done_recv)
         return;
-  // check for bad request 
-  // match the location
+  // 400 check for bad request
+  //  > max_body_size
+  // 405 method not allowed 
+  // 411 lenght required
+  // 413 payload too large
+  // 404 not founf if not match a location
   // response
-
+  if (_req->get_method() == "GET") {
+    _res->GET(this);
+  } else if (_req->get_method() == "POST") {
+    _res->POST(this);
+  } else if (_req->get_method() == "DELETE") {
+    _res->DELETE(this);
+  }
     std::string res("HTTP/1.1 200 OK\n\
     Content-Type: text/html\n\
     Content-Length: 20\n\n\
