@@ -54,7 +54,8 @@ void  Client::get_matched_location() {
   std::string search = _req->get_url();
   while (search != "") {
     for (it = loc.begin(); it != loc.end(); it++) {
-      if (it->pattern == _req->get_url()) {
+      if (it->pattern == search) {
+        std::cout << "matched in: " << it->pattern << "= " << search << std::endl; 
         _matched = new locations(*it);
         return ;
       }
