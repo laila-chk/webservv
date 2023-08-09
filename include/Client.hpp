@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
+/*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/23 08:22:44 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/01 14:18:01 by mtellami         ###   ########.fr       */
+/*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
+/*   Updated: 2023/08/03 11:44:20 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "Cluster.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "parsing.hpp"
 
 class Response;
 
@@ -25,6 +26,7 @@ class Client {
         Cluster     *_cluster;
         Request     *_req;
         Response    *_res;
+        locations   *_matched;
         SOCK_FD     _socket;
         bool        _done_recv;
         bool        _done_send;
@@ -40,6 +42,7 @@ class Client {
         bool    done_send(void);
         void    parse_header(void);
         void    recv_body(void);
+        void    get_matched_location(void);
 };
 
 #endif

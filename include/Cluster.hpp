@@ -30,6 +30,7 @@ class Cluster {
         SOCK_FD             get_listen_fd(void);
         struct sockaddr_in  *get_address(void);
         socklen_t           *get_addrlen(void);
+        Config&             get_config(void);
 };
 
 #endif

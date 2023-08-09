@@ -55,9 +55,10 @@ class Response {
         std::string getContentType();
         int get_methode(Config &config_file);
         ~Response(void);
-
+        std::string get_error_page(std::string page, int code);
         void  bad_request(Client *cl);
         void  payload_too_large(Client *cl);
+        void  not_found(Client *cl);
         void  GET(Client *cl);
         void  POST(Client *cl);
         void  DELETE(Client *cl);

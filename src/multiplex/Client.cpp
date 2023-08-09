@@ -18,7 +18,8 @@ Client::Client(Cluster *cluster) : _cluster(cluster) {
     _done_send = false;
     _socket = accept(_cluster->get_listen_fd(), (struct sockaddr *)_cluster->get_address(), (socklen_t*)_cluster->get_addrlen());
     _req = new Request;
-    _res = new Response; 
+    _res = new Response;
+    _matched = NULL;
 }
 
 // Destructor
@@ -46,26 +47,34 @@ void    Client::recieve(void) {
         _req->get_request_body(_socket, _done_recv);
 }
 
+// set the mathced location
+void  Client::get_matched_location() {
+  // do the thing ...
+}
+
 // Response to the ready client
 void    Client::sending(void) {
     if (!_done_recv || _done_send)
         return;
-  // 400 check for bad request
+  // this kindaa hardcode i'll change it latter
   if (_req->is_bad_request()) {
     _res->bad_request(this);
     _done_send = true;
     return ;
   }
-  //  > max_body_size
   if (_req->is_payload_too_large()) {
     _res->payload_too_large(this);
     _done_send = true;
     return ;
   }
-  // 405 method not allowed 
-  // 411 lenght required
-  // 413 payload too large
   // 404 not founf if not match a location
+  get_matched_location();
+  if (!_matched) {
+    _res->not_found(this);
+    _done_send = true;
+    return ;
+  }
+  // 405 method not allowed (need to be checked after finding the appropriate location)
   // response
   if (_req->get_method() == "GET") {
     _res->GET(this);

@@ -10,6 +10,17 @@ Config::~Config()
 
 locations::locations() {}
 
+// Copy constructor added by moad
+locations::locations(const locations & obj) {
+  pattern = obj.pattern;
+  methods = obj.methods;
+  redir_path = obj.redir_path;
+  root = obj.root;
+  autoindex = obj.autoindex;
+  def_files = obj.def_files;
+  cgi = obj.cgi;
+}
+
 locations::~locations() {}
 
 void ft_perr(std::string msg) {

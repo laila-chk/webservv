@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include <cstring>
 // Response::Response(Cluster *cluster) : _cluster(cluster) {
 // }
 
@@ -104,20 +105,26 @@ void Response::toString(std::string const  &type)
 
 // }
 
-std::string get_error_page(std::string page) {
-  std::string res("HTTP/1.1 400 Bad Request\n\
-  Content-Type: text/html\n\
-  Content-Length: ");
+std::string Response::get_error_page(std::string page, int code) {
+  std::string line("HTTP/1.1 ");
+  line += std::to_string(code) + " ";
+  line += getStatusMsg(code) + "\n";
+  std::string res("Content-Type: text/html\nContent-Length: ");
+  res = line + res;
   std::string content;
-  char buffer[1];
-  int i, fd = open(page.c_str(), O_RDONLY);
+  char buffer[2];
+  int fd = open(page.c_str(), O_RDONLY);
+  if (fd == FAIL) {
+    std::cerr << "Cant open the file" << std::endl;
+    throw System();
+  }
   while (true) {
-    i = read(fd, buffer, 1);
-    if (i == -1)
+    int i = read(fd, buffer, 1);
+    if (i == FAIL)
       throw System();
     if (!i)
       break;
-    content += std::string(buffer);
+    content += std::string(buffer, i);
   }
   res += std::to_string(content.length()) + "\n\n";
   res += content;
@@ -125,12 +132,17 @@ std::string get_error_page(std::string page) {
 }
 
 void  Response::bad_request(Client *cl) {
-    std::string res = get_error_page("src/response_pages/400.html");
+    std::string res = get_error_page("src/response_pages/400.html", 400);
     send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
 void  Response::payload_too_large(Client *cl) {
-  std::string res = get_error_page("src/response_pages/413.html");
+  std::string res = get_error_page("src/response_pages/413.html", 413);
+  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+}
+
+void  Response::not_found(Client *cl) {
+  std::string res = get_error_page("src/response_pages/404.html", 404);
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 

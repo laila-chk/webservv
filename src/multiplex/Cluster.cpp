@@ -52,3 +52,7 @@ struct sockaddr_in  *Cluster::get_address(void) {
 socklen_t *Cluster::get_addrlen(void) {
     return &_addrlen;
 }
+
+Config & Cluster::get_config() {
+  return _config;
+} 
