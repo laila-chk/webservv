@@ -29,11 +29,15 @@ Request::~Request() {
 }
 
 // Getter
-std::string Request::get_method(void) {
+std::string Request::get_method() {
     return _start_line[0];
 }
 
-bool Request::recieve_header(void) {
+std::string Request::get_url() {
+  return _start_line[1];
+}
+
+bool Request::recieve_header() {
     return _recv_header;
 }
 

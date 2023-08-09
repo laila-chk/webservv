@@ -49,7 +49,21 @@ void    Client::recieve(void) {
 
 // set the mathced location
 void  Client::get_matched_location() {
-  // do the thing ...
+  std::vector<locations>::iterator it;
+  std::vector<locations> loc = _cluster->get_config().loc;
+  std::string search = _req->get_url();
+  while (search != "") {
+    for (it = loc.begin(); it != loc.end(); it++) {
+      if (it->pattern == _req->get_url()) {
+        _matched = new locations(*it);
+        return ;
+      }
+    }
+    size_t pos = search.find_last_of("/");
+    if (pos == std::string::npos)
+        break;
+    search = search.substr(0, pos);
+  }
 }
 
 // Response to the ready client

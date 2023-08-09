@@ -41,6 +41,7 @@ class Request {
         void    write_body_chunk(bool & _done_recv);
 
         std::string get_method(void);
+        std::string get_url(void);
         bool        recieve_header(void);
         bool        is_bad_request(void);
         bool        is_payload_too_large(void);
