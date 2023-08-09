@@ -146,6 +146,12 @@ void  Response::not_found(Client *cl) {
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
+void  Response::method_not_allowed(Client *cl) {
+  std::string res = get_error_page("src/response_pages/405.html", 405);
+  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+}
+
+// main mathods
 void  Response::GET(Client *cl) {
   (void)cl;
 }

@@ -55,7 +55,6 @@ void  Client::get_matched_location() {
   while (search != "") {
     for (it = loc.begin(); it != loc.end(); it++) {
       if (it->pattern == search) {
-        std::cout << "matched in: " << it->pattern << "= " << search << std::endl; 
         _matched = new locations(*it);
         return ;
       }
@@ -86,6 +85,16 @@ void    Client::sending(void) {
   get_matched_location();
   if (!_matched) {
     _res->not_found(this);
+    _done_send = true;
+    return ;
+  }
+  std::vector<std::string>::iterator it;
+  for (it = _matched->methods.begin(); it != _matched->methods.end(); it++) {
+    if (*it == _req->get_method())
+      break;
+  }
+  if (it == _matched->methods.end()) {
+    _res->method_not_allowed(this);
     _done_send = true;
     return ;
   }

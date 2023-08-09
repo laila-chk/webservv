@@ -59,6 +59,7 @@ class Response {
         void  bad_request(Client *cl);
         void  payload_too_large(Client *cl);
         void  not_found(Client *cl);
+        void  method_not_allowed(Client *cl);
         void  GET(Client *cl);
         void  POST(Client *cl);
         void  DELETE(Client *cl);
