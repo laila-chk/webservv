@@ -20,7 +20,7 @@ Request::Request() {
     _body_size = 0;
     _filename = "";
     _query = "";
-    _bad_request = true;
+    _bad_request = false;
 }
 
 // Destructor
@@ -34,6 +34,10 @@ std::string Request::get_method(void) {
 
 bool Request::recieve_header(void) {
     return _recv_header;
+}
+
+bool  Request::is_bad_request() {
+  return _bad_request;
 }
 
 // _stoi
@@ -51,13 +55,23 @@ void    Request::parse_request_header(bool & _done_recv) {
     std::string         line;
 
     std::getline(iss, line);
-    std::istringstream  _ss(_recv_buffer);
+    std::istringstream  _ss(line);
     std::string         buff;
 
     while (_ss >> buff)
         _start_line.push_back(std::string(buff));
-    if (_start_line[1].find("?") != std::string::npos)
-        _query = _start_line[1].substr(_start_line[1].find("?") + 1);
+    // Check for valid percent encoding (URI)
+    if (_start_line.size() != 3) {
+      _bad_request = true;
+      _done_recv = true;
+      return;
+    }
+    for (std::vector<std::string>::iterator it = _start_line.begin(); it != _start_line.end(); it++)
+        std::cout << *it << " " << std::endl;
+    if (_start_line[1].find("?") != std::string::npos) {
+      _query = _start_line[1].substr(_start_line[1].find("?") + 1);
+      _start_line[1] = _start_line[1].substr(0, _start_line[1].find("?"));
+    }
     while (std::getline(iss, line)) 
         _req_header.insert(_req_header.end(), std::make_pair(line.substr(0, line.find(":")), line.substr(line.find(" "))));
     _recv_buffer = "";
@@ -66,6 +80,11 @@ void    Request::parse_request_header(bool & _done_recv) {
         return ;
     }
     _buffer_size = 0;
+    if ( _req_header.find("Content-Length") == _req_header.end()) {
+      _bad_request = true;
+      _done_recv = true;
+      return;
+  }
     _body_size = _stoi(_req_header.find("Content-Length")->second);
 }
 

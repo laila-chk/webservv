@@ -41,6 +41,7 @@ class Request {
 
         std::string get_method(void);
         bool        recieve_header(void);
+        bool        is_bad_request();
 
 };
 

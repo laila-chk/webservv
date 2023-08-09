@@ -104,6 +104,25 @@ void Response::toString(std::string const  &type)
 
 // }
 
+void  Response::bad_request(Client *cl) {
+    std::string res("HTTP/1.1 400 Bad Request\n\
+    Content-Type: text/html\n\
+    Content-Length: 50\n\n");
+    char buffer[1];
+    int i, fd = open("src/response_pages/400.html", O_RDONLY);
+    while (true) {
+    i = read(fd, buffer, 1);
+    if (i == -1)
+      throw System();
+    if (!i)
+      break;
+    res += std::string(buffer);
+    }
+    send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+
+  std::cout << "Bad Request" << std::endl;
+}
+
 void  Response::GET(Client *cl) {
   (void)cl;
 }

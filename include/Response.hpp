@@ -56,6 +56,7 @@ class Response {
         int get_methode(Config &config_file);
         ~Response(void);
 
+        void  bad_request(Client *cl);
         void  GET(Client *cl);
         void  POST(Client *cl);
         void  DELETE(Client *cl);

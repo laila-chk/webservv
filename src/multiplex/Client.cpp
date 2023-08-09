@@ -48,9 +48,14 @@ void    Client::recieve(void) {
 
 // Response to the ready client
 void    Client::sending(void) {
-    if (!_done_recv)
+    if (!_done_recv || _done_send)
         return;
   // 400 check for bad request
+  if (_req->is_bad_request()) {
+    _res->bad_request(this);
+    _done_send = true;
+    return ;
+  }
   //  > max_body_size
   // 405 method not allowed 
   // 411 lenght required
