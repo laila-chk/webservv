@@ -25,6 +25,7 @@ class Request {
         char              _buffer[SIZE];
         int               _i;
         bool              _bad_request;
+        bool              _payload_too_large;
         int               _body_size;
         std::string       _filename;
         bool              _recv_header;
@@ -41,7 +42,8 @@ class Request {
 
         std::string get_method(void);
         bool        recieve_header(void);
-        bool        is_bad_request();
+        bool        is_bad_request(void);
+        bool        is_payload_too_large(void);
 
 };
 

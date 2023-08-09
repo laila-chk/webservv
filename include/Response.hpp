@@ -57,6 +57,7 @@ class Response {
         ~Response(void);
 
         void  bad_request(Client *cl);
+        void  payload_too_large(Client *cl);
         void  GET(Client *cl);
         void  POST(Client *cl);
         void  DELETE(Client *cl);

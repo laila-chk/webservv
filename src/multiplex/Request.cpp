@@ -21,6 +21,7 @@ Request::Request() {
     _filename = "";
     _query = "";
     _bad_request = false;
+    _payload_too_large = false;
 }
 
 // Destructor
@@ -38,6 +39,10 @@ bool Request::recieve_header(void) {
 
 bool  Request::is_bad_request() {
   return _bad_request;
+}
+
+bool  Request::is_payload_too_large() {
+  return _payload_too_large;
 }
 
 // _stoi
@@ -66,8 +71,6 @@ void    Request::parse_request_header(bool & _done_recv) {
       _done_recv = true;
       return;
     }
-    for (std::vector<std::string>::iterator it = _start_line.begin(); it != _start_line.end(); it++)
-        std::cout << *it << " " << std::endl;
     if (_start_line[1].find("?") != std::string::npos) {
       _query = _start_line[1].substr(_start_line[1].find("?") + 1);
       _start_line[1] = _start_line[1].substr(0, _start_line[1].find("?"));
