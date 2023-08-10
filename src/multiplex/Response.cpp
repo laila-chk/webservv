@@ -153,14 +153,26 @@ void  Response::method_not_allowed(Client *cl) {
 
 // main mathods
 void  Response::GET(Client *cl) {
-  (void)cl;
+  // the big part ...
+  std::string res("HTTP/1.1 200 OK\n\
+  Content-Type: text/html\n\
+  Content-Length: 20\n\n\
+  <h1 style=\"font-size:5rem\">GET REQUEST</h1>");
+
+  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
 void Response::POST(Client *cl) {
-  (void)cl;
+  // right now i have no idea what i need to check ....
+  std::string res = get_error_page("src/response_pages/201.html", 201);
+  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
 void Response::DELETE(Client *cl) {
-  (void)cl;
+  // check if a file => else (forbidden)
+  // check if exist else (idontknow)
+  // then delete it and response 200 OK
+  std::string res = get_error_page("src/response_pages/200.html", 200);
+  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 

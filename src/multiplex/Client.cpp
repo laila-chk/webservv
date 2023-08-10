@@ -98,7 +98,6 @@ void    Client::sending(void) {
     _done_send = true;
     return ;
   }
-  // 405 method not allowed (need to be checked after finding the appropriate location)
   // response
   if (_req->get_method() == "GET") {
     _res->GET(this);
@@ -107,12 +106,6 @@ void    Client::sending(void) {
   } else if (_req->get_method() == "DELETE") {
     _res->DELETE(this);
   }
-    std::string res("HTTP/1.1 200 OK\n\
-    Content-Type: text/html\n\
-    Content-Length: 20\n\n\
-    <h1 style=\"font-size:5rem\"> request Accepted and served</h1>");
-
-    send(_socket, res.c_str(), strlen(res.c_str()), 0);
-    _done_send = true;
+  _done_send = true;
 }
 
