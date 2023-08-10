@@ -154,6 +154,10 @@ void  Response::method_not_allowed(Client *cl) {
 // main mathods
 void  Response::GET(Client *cl) {
   // the big part ...
+  // url :  
+  // file ()
+  // directory
+  // redirection : _start_lien[1] = value in return;
   std::string res("HTTP/1.1 200 OK\n\
   Content-Type: text/html\n\
   Content-Length: 20\n\n\

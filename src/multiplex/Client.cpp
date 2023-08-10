@@ -41,10 +41,25 @@ bool    Client::done_send(void) {
 void    Client::recieve(void) {
     if (_done_recv)
         return ;
-    if (!_req->recieve_header())
-        _req->get_request_header(_socket, _done_recv);
-    else
-        _req->get_request_body(_socket, _done_recv);
+    if (!_req->recieve_header()) {
+      _req->get_request_header(_socket, _done_recv);
+      get_matched_location();
+      if (!_matched) {
+        _done_recv = true;
+        return;
+      }
+      std::vector<std::string>::iterator it;
+      for (it = _matched->methods.begin(); it != _matched->methods.end(); it++) {
+        if (*it == _req->get_method())
+          break;
+      }
+      if (it == _matched->methods.end()) {
+        _req->method_is_not_allowed(true);
+        _done_recv = true;
+      }
+    } else {
+      _req->get_request_body(_socket, _done_recv);
+    }
 }
 
 // set the mathced location
@@ -64,6 +79,7 @@ void  Client::get_matched_location() {
         break;
     search = search.substr(0, pos);
   }
+  _done_recv = true;
 }
 
 // Response to the ready client
@@ -81,8 +97,6 @@ void    Client::sending(void) {
     _done_send = true;
     return ;
   }
-  // 404 not founf if not match a location
-  get_matched_location();
   if (!_matched) {
     _res->not_found(this);
     _done_send = true;

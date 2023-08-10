@@ -22,6 +22,7 @@ Request::Request() {
     _query = "";
     _bad_request = false;
     _payload_too_large = false;
+    _method_not_allowed = false;
 }
 
 // Destructor
@@ -49,6 +50,10 @@ bool  Request::is_payload_too_large() {
   return _payload_too_large;
 }
 
+void  Request::method_is_not_allowed(bool stat) {
+  _method_not_allowed = stat;
+}
+
 // _stoi
 static int _stoi(std::string str) {
 	std::istringstream iss(str);
@@ -70,6 +75,7 @@ void    Request::parse_request_header(bool & _done_recv) {
     while (_ss >> buff)
         _start_line.push_back(std::string(buff));
     // Check for valid percent encoding (URI)
+    // set error here , not need to continue if a request error occure ..(method not allowed, not match location ...)
     if (_start_line.size() != 3) {
       _bad_request = true;
       _done_recv = true;
