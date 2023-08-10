@@ -41,7 +41,7 @@ bool    Client::done_send(void) {
 void    Client::recieve(void) {
     if (_done_recv)
         return ;
-    if (!_req->recieve_header()) {
+  if (!_req->recieve_header()) {
       _req->get_request_header(_socket, _done_recv);
       get_matched_location();
       if (!_matched) {
@@ -89,8 +89,8 @@ void  Client::get_matched_location() {
 
 // Response to the ready client
 void    Client::sending(void) {
-    if (!_done_recv || _done_send)
-        return;
+  if (!_done_recv || _done_send)
+      return;
   // this kindaa hardcode i'll change it latter
   if (_req->is_bad_request()) {
     _res->bad_request(this);

@@ -108,6 +108,8 @@ void    Request::parse_request_header(bool & _done_recv) {
       return;
     }
     _body_size = _stoi(_req_header.find("Content-Length")->second);
+    if (!_body_size)
+      _done_recv = true;
 }
 
 // get the client request header
@@ -145,7 +147,6 @@ void Request::write_body_chunk(bool & _done_recv) {
     std::string suffix(_req_header.find("Content-Type")->second.substr(_req_header.find("Content-Type")->second.find("/") + 1));
     std::ofstream out;
 	
-
 		out.open(std::string("upload/" + _filename + "." + suffix).c_str(), std::ios::binary | std::ios::app);
     out << _recv_buffer;
     out.close();
