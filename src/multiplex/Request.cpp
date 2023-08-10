@@ -29,7 +29,7 @@ Request::Request() {
 Request::~Request() {
 }
 
-// Getter
+// Getters ...
 std::string Request::get_method() {
     return _start_line[0];
 }
@@ -50,8 +50,18 @@ bool  Request::is_payload_too_large() {
   return _payload_too_large;
 }
 
+
+std::map<std::string, std::string> Request::get_req_header(void) {
+  return _req_header;
+}
+
+// Setters ...
 void  Request::method_is_not_allowed(bool stat) {
   _method_not_allowed = stat;
+}
+
+void  Request::payload_is_too_large(bool stat) {
+  _payload_too_large = stat;
 }
 
 // _stoi
@@ -75,7 +85,6 @@ void    Request::parse_request_header(bool & _done_recv) {
     while (_ss >> buff)
         _start_line.push_back(std::string(buff));
     // Check for valid percent encoding (URI)
-    // set error here , not need to continue if a request error occure ..(method not allowed, not match location ...)
     if (_start_line.size() != 3) {
       _bad_request = true;
       _done_recv = true;
@@ -97,7 +106,7 @@ void    Request::parse_request_header(bool & _done_recv) {
       _bad_request = true;
       _done_recv = true;
       return;
-  }
+    }
     _body_size = _stoi(_req_header.find("Content-Length")->second);
 }
 
@@ -168,13 +177,3 @@ void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv) {
         _done_recv = true;
 }
 
-// ----------- REQUEST HEADER EXAMPLE -------------------
-
-// POST /cgi-bin/process.cgi HTTP/1.1
-// User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
-// Host: www.tutorialspoint.com
-// Content-Type: application/x-www-form-urlencoded
-// Content-Length: length
-// Accept-Language: en-us
-// Accept-Encoding: gzip, deflate
-// Connection: Keep-Alive

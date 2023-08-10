@@ -43,10 +43,12 @@ class Request {
 
         std::string get_method(void);
         std::string get_url(void);
+        std::map<std::string, std::string> get_req_header(void);
         bool        recieve_header(void);
         bool        is_bad_request(void);
         bool        is_payload_too_large(void);
         void        method_is_not_allowed(bool stat);
+        void        payload_is_too_large(bool stat);
 
 };
 

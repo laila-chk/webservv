@@ -162,7 +162,6 @@ void  Response::GET(Client *cl) {
   Content-Type: text/html\n\
   Content-Length: 20\n\n\
   <h1 style=\"font-size:5rem\">GET REQUEST</h1>");
-
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 

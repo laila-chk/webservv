@@ -57,6 +57,11 @@ void    Client::recieve(void) {
         _req->method_is_not_allowed(true);
         _done_recv = true;
       }
+      if (_req->get_method() == "POST" && stoi(_req->get_req_header().find("Content-Length")->second) \
+        > _cluster->get_config().client_max_body_size) {
+        _req->payload_is_too_large(true);
+        _done_recv = true;
+      }
     } else {
       _req->get_request_body(_socket, _done_recv);
     }
