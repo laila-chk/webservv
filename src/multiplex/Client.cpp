@@ -69,7 +69,7 @@ void    Client::recieve(void) {
         _done_recv = true;
       }
     } else {
-      _req->get_request_body(_socket, _done_recv);
+      _req->get_request_body(_socket, _done_recv, _matched->root + _req->get_url());
     }
 }
 
@@ -116,7 +116,7 @@ void    Client::sending(void) {
     _done_send = true;
     return ;
   }
-  if (!_matched) {
+  if (!_matched || _req->is_not_found()) {
     _res->not_found(this);
     _done_send = true;
     return ;
