@@ -18,7 +18,7 @@ Client::Client(Cluster *cluster) : _cluster(cluster) {
     _done_send = false;
     _socket = accept(_cluster->get_listen_fd(), (struct sockaddr *)_cluster->get_address(), (socklen_t*)_cluster->get_addrlen());
     _req = new Request;
-    _res = new Response;
+    _res = new Response(cluster);
     _matched = NULL;
 }
 
@@ -69,7 +69,7 @@ void    Client::recieve(void) {
         _done_recv = true;
       }
     } else {
-      _req->get_request_body(_socket, _done_recv);
+      _req->get_request_body(_socket, _done_recv, _matched->root + _req->get_url());
     }
 }
 
@@ -116,7 +116,7 @@ void    Client::sending(void) {
     _done_send = true;
     return ;
   }
-  if (!_matched) {
+  if (!_matched || _req->is_not_found()) {
     _res->not_found(this);
     _done_send = true;
     return ;

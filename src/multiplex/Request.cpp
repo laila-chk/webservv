@@ -23,6 +23,7 @@ Request::Request() {
     _bad_request = false;
     _payload_too_large = false;
     _method_not_allowed = false;
+    _not_found = false;
 }
 
 // Destructor
@@ -48,6 +49,10 @@ bool  Request::is_bad_request() {
 
 bool  Request::is_payload_too_large() {
   return _payload_too_large;
+}
+
+bool  Request::is_not_found() {
+  return _not_found;
 }
 
 
@@ -141,20 +146,27 @@ std::string rand_name(void) {
 }
 
 // write the readed chunk to the file
-void Request::write_body_chunk(bool & _done_recv) {
+void Request::write_body_chunk(bool & _done_recv, std::string path) {
     if (_done_recv)
         return;
     std::string suffix(_req_header.find("Content-Type")->second.substr(_req_header.find("Content-Type")->second.find("/") + 1));
     std::ofstream out;
-	
-		out.open(std::string("upload/" + _filename + "." + suffix).c_str(), std::ios::binary | std::ios::app);
+
+    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+      _not_found = true;
+      _done_recv = true;
+      return ;
+    }
+    path += "/" + _filename + "." + suffix;
+
+		out.open(path.c_str(), std::ios::binary | std::ios::app);
     out << _recv_buffer;
     out.close();
     _recv_buffer = "";
 }
 
 // get the client request body by chunks
-void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv) {
+void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path) {
     if (_done_recv)
         return ;
     if (_filename == "")
@@ -173,7 +185,7 @@ void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv) {
         i++;
         _buffer_size++;
     }
-    write_body_chunk(_done_recv);
+    write_body_chunk(_done_recv, path);
     if (_buffer_size == (size_t)_body_size)
         _done_recv = true;
 }

@@ -191,7 +191,6 @@ void  Response::GET(Client *cl) {
 }
 
 void Response::POST(Client *cl) {
-  // right now i have no idea what i need to check ....
   std::string res = get_error_page("src/response_pages/201.html", 201);
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }

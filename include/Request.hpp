@@ -27,6 +27,7 @@ class Request {
         bool              _bad_request;
         bool              _payload_too_large;
         bool              _method_not_allowed;
+        bool              _not_found;
         int               _body_size;
         std::string       _filename;
         bool              _recv_header;
@@ -38,8 +39,8 @@ class Request {
         void    get_request_header(SOCK_FD & _socket, bool & _done_recv);
         void    parse_request_header(bool & _done_recv);
 
-        void    get_request_body(SOCK_FD & _socket, bool & _done_recv);
-        void    write_body_chunk(bool & _done_recv);
+        void    get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path);
+        void    write_body_chunk(bool & _done_recv, std::string path);
 
         std::string get_method(void);
         std::string get_url(void);
@@ -47,6 +48,7 @@ class Request {
         bool        recieve_header(void);
         bool        is_bad_request(void);
         bool        is_payload_too_large(void);
+        bool        is_not_found(void);
         void        method_is_not_allowed(bool stat);
         void        payload_is_too_large(bool stat);
 
