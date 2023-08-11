@@ -36,14 +36,16 @@ class Client {
     public:
         Client(Cluster *cluster);
         ~Client(void);
-        SOCK_FD get_connect_fd();
-        void    recieve(void);
-        void    sending(void);
-        bool    done_send(void);
-        void    parse_header(void);
-        void    recv_body(void);
-        void    get_matched_location(void);
-        Request *get_req(void);
+
+        SOCK_FD   get_connect_fd(void);
+        void      recieve(void);
+        void      sending(void);
+        bool      done_send(void);
+        void      parse_header(void);
+        void      recv_body(void);
+        void      get_matched_location(void);
+        locations *get_location(void);
+        Request   *get_req(void);
 };
 
 #endif

@@ -138,7 +138,7 @@ void  Response::bad_request(Client *cl) {
 
 void  Response::payload_too_large(Client *cl) {
   std::string res = get_error_page("src/response_pages/413.html", 413);
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);\
 }
 
 void  Response::not_found(Client *cl) {
@@ -182,13 +182,16 @@ void  Response::GET(Client *cl) {
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
+// POST request
 void Response::POST(Client *cl) {
+  // Handled in the request part
   std::string res = get_error_page("src/response_pages/201.html", 201);
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
+// DELETE request
 void Response::DELETE(Client *cl) {
-  std::filesystem::path url = "upload/" + cl->get_req()->get_url();
+  std::filesystem::path url = cl->get_location()->root + cl->get_req()->get_url();
   std::string res;
   if (std::filesystem::exists(url)) {
     if (std::filesystem::is_regular_file(url)) {
@@ -202,5 +205,4 @@ void Response::DELETE(Client *cl) {
   }
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
-
 

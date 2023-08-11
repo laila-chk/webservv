@@ -39,8 +39,12 @@ bool    Client::done_send(void) {
     return _done_send;
 }
 
-Request  * Client::get_req() {
+Request  *Client::get_req() {
   return _req;
+}
+
+locations *Client::get_location() {
+  return _matched;
 }
 
 // Recive from the ready client
@@ -62,11 +66,13 @@ void    Client::recieve(void) {
       if (it == _matched->methods.end()) {
         _req->method_is_not_allowed(true);
         _done_recv = true;
+        return;
       }
       if (_req->get_method() == "POST" && stoi(_req->get_req_header().find("Content-Length")->second) \
         > _cluster->get_config().client_max_body_size) {
         _req->payload_is_too_large(true);
         _done_recv = true;
+        return ;
       }
     } else {
       _req->get_request_body(_socket, _done_recv, _matched->root + _req->get_url());
@@ -105,7 +111,6 @@ void  Client::get_matched_location() {
 void    Client::sending(void) {
   if (!_done_recv || _done_send)
       return;
-  // this kindaa hardcode i'll change it latter
   if (_req->is_bad_request()) {
     _res->bad_request(this);
     _done_send = true;

@@ -5,6 +5,7 @@ SANITIZE = -fsanitize=address -g3
 NONE = '\033[0m'
 GREEN = '\033[0;32m'
 GRAY = '\033[2;37m'
+ITALIC = '\033[3m'
 
 CPPFLAGS = -Wall -Wextra -Werror $(INC)
 
@@ -21,22 +22,20 @@ OBJ = $(SRC:.cpp=.o)
 all: $(NAME)
 
 %.o: %.cpp
-	@echo -e  $(GRAY) "Making .. $< " $(NONE)
+	@echo -e $(GRAY) $(ITALIC) "Making .. $< " $(NONE)
 	@c++ $(CPPFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ)
 	@c++ $(CPPFLAGS) $^ -o $(NAME)
-	@mkdir -p upload
-	@echo -e $(GREEN) "Compiled ..." $(NONE)
+	@echo -e $(GREEN) $(ITALIC) "Compiled .." $(NONE)
 
 clean:
 	@rm -rf $(OBJ)
-	@echo -e $(GREEN) "Objects removed ..." $(NONE)
+	@echo -e $(GREEN) $(ITALIC) "Objects removed .." $(NONE)
 
 fclean: clean
 	@rm -rf $(NAME)
-	@rm -fr upload
-	@echo -e $(GREEN) "Cleaned ..." $(NONE)
+	@echo -e $(GREEN) $(ITALIC) "Cleaned .. " $(NONE)
 
 re: fclean all
 
