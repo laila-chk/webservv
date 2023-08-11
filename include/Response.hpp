@@ -47,13 +47,12 @@ class Response {
         off_t       _body_size;
 
 
-        //Response(Cluster *cluster);
+        Response(Cluster *cluster);
         std::string getStatusMsg(int status);
         void toString( std::string const  &type);
         void toStringGet();
         void setBodySize(off_t size);
         std::string getContentType();
-        int get_methode(Config &config_file);
         ~Response(void);
         std::string get_error_page(std::string page, int code);
         void  bad_request(Client *cl);
@@ -63,6 +62,10 @@ class Response {
         void  GET(Client *cl);
         void  POST(Client *cl);
         void  DELETE(Client *cl);
+
+        bool file_exists(const char *path);
+        std::string full_path(locations *var);
+        bool isDirectory(const char *path);
 };
 
 
