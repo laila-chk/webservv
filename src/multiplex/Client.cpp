@@ -18,7 +18,7 @@ Client::Client(Cluster *cluster) : _cluster(cluster) {
     _done_send = false;
     _socket = accept(_cluster->get_listen_fd(), (struct sockaddr *)_cluster->get_address(), (socklen_t*)_cluster->get_addrlen());
     _req = new Request;
-    _res = new Response;
+    _res = new Response(cluster);
     _matched = NULL;
 }
 
