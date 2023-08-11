@@ -64,7 +64,7 @@ class Response {
         void  DELETE(Client *cl);
 
         bool file_exists(const char *path);
-        std::string full_path(locations *var);
+        char *joinRootAndPattern(const char *root, const char *pattern);
         bool isDirectory(const char *path);
 };
 

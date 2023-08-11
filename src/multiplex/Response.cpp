@@ -150,11 +150,19 @@ void  Response::method_not_allowed(Client *cl) {
   std::string res = get_error_page("src/response_pages/405.html", 405);
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
-std::string Response::full_path(locations *var)
-{
-  std::string full_path = var->root + var->pattern ;
-  return full_path;
+
+
+char *Response::joinRootAndPattern(const char *root, const char *pattern) {
+	size_t rootLen = std::strlen(root);
+	size_t patternLen = std::strlen(pattern);
+	char *fullPath = new char[rootLen + patternLen + 2];
+	std::strcpy(fullPath, root);
+	std::strncat(fullPath, "/", 1);
+	std::strncat(fullPath, pattern, patternLen);
+	return (fullPath);
 }
+
+
 bool Response::file_exists(const char *path) {
 	return (access(path, F_OK) == 0);
 }
