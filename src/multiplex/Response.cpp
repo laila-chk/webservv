@@ -12,8 +12,8 @@
 
 #include "Response.hpp"
 #include <cstring>
-// Response::Response(Cluster *cluster) : _cluster(cluster) {
-// }
+Response::Response(Cluster *cluster) : _cluster(cluster) {
+}
 
 Response::~Response() {
 }
@@ -150,11 +150,28 @@ void  Response::method_not_allowed(Client *cl) {
   std::string res = get_error_page("src/response_pages/405.html", 405);
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
+std::string Response::full_path(locations *var)
+{
+  std::string full_path = var->root + var->pattern ;
+  return full_path;
+}
+bool Response::file_exists(const char *path) {
+	return (access(path, F_OK) == 0);
+}
+bool Response::isDirectory(const char *path) {
+	DIR* dir = opendir(path);
+	if (dir != NULL)
+	{
+		closedir(dir);
+		return true;
+	}
+	return false;
+}
 
 // main mathods
 void  Response::GET(Client *cl) {
-  // the big part ...
   // url :  
+  // join root and pattern
   // file ()
   // directory
   // redirection : _start_lien[1] = value in return;
