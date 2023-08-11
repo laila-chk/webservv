@@ -32,7 +32,7 @@
 #include <list>
 #include <vector>
 #include <map>
-
+#include <dirent.h>
 // Macros
 #define FAIL -1
 #define SIZE 3072
