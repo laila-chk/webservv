@@ -172,10 +172,19 @@ void Response::POST(Client *cl) {
 }
 
 void Response::DELETE(Client *cl) {
-  // check if a file => else (forbidden)
-  // check if exist else (idontknow)
-  // then delete it and response 200 OK
-  std::string res = get_error_page("src/response_pages/200.html", 200);
+  std::filesystem::path url = "upload/" + cl->get_req()->get_url();
+  std::string res;
+  if (std::filesystem::exists(url)) {
+    if (std::filesystem::is_regular_file(url)) {
+      res = get_error_page("src/response_pages/200.html", 200);
+      remove(url);
+    } else {
+      res = get_error_page("src/response_pages/403.html", 403);
+    }
+  } else {
+    res = get_error_page("src/response_pages/404.html", 404);
+  }
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
+
 
