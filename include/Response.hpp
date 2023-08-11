@@ -66,6 +66,7 @@ class Response {
         bool file_exists(const char *path);
         char *joinRootAndPattern(const char *root, const char *pattern);
         bool isDirectory(const char *path);
+        void getListOfFiles(const char *path, std::vector<std::string> &list);
 };
 
 

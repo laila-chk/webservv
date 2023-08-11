@@ -162,10 +162,10 @@ char *Response::joinRootAndPattern(const char *root, const char *pattern) {
 	return (fullPath);
 }
 
-
 bool Response::file_exists(const char *path) {
 	return (access(path, F_OK) == 0);
 }
+
 bool Response::isDirectory(const char *path) {
 	DIR* dir = opendir(path);
 	if (dir != NULL)
@@ -174,6 +174,25 @@ bool Response::isDirectory(const char *path) {
 		return true;
 	}
 	return false;
+}
+// If autoindex is enabled for a specific directory, the server will generate an HTML page that lists the contents (files 
+//and subdirectories) of that directory and send it as the response to the user's request.
+void Response::getListOfFiles(const char *path, std::vector<std::string> &list) {
+	DIR* dir = opendir(path);
+	if (dir != NULL)
+	{
+		struct dirent* entry;
+		entry = readdir(dir);
+		while (entry)
+		{
+			if (entry->d_type == DT_REG || entry->d_type == DT_DIR)
+			{
+				list.push_back(entry->d_name);
+			}
+			entry = readdir(dir);
+		}
+		closedir(dir);
+	}
 }
 
 // main mathods
