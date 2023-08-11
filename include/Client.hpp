@@ -43,6 +43,7 @@ class Client {
         void    parse_header(void);
         void    recv_body(void);
         void    get_matched_location(void);
+        Request *get_req(void);
 };
 
 #endif

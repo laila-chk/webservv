@@ -26,6 +26,8 @@ Client::Client(Cluster *cluster) : _cluster(cluster) {
 Client::~Client(void) {
     delete _req;
     delete _res;
+    if (_matched)
+      delete _matched;
 }
 
 // Getter
@@ -35,6 +37,10 @@ SOCK_FD Client::get_connect_fd() {
 
 bool    Client::done_send(void) {
     return _done_send;
+}
+
+Request  * Client::get_req() {
+  return _req;
 }
 
 // Recive from the ready client
@@ -84,6 +90,14 @@ void  Client::get_matched_location() {
         break;
     search = search.substr(0, pos);
   }
+  search = "/";
+  for (it = loc.begin(); it != loc.end(); it++) {
+      if (it->pattern == search) {
+        _matched = new locations(*it);
+        return ;
+      }
+    }
+
   _done_recv = true;
 }
 
