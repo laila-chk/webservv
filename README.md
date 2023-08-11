@@ -19,4 +19,5 @@
 - [x] Server creation
 - [x] Request parsing
 - [x] POST request uploading
-- [ ] Response
+- [ ] DELETE request (working on ...)
+- [ ] GET request
