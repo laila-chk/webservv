@@ -104,7 +104,6 @@ void    Server::handle_requests(void) {
     }
 }
 
-// Response
 void    Server::responsing(void) {
     std::list<Client*>::iterator it;
 
