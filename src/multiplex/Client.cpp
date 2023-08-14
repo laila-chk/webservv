@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/03 11:44:20 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/14 09:29:57 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,14 @@ locations *Client::get_location() {
   return _matched;
 }
 
+// stoi
+static int _stoi(std::string str) {
+	std::istringstream iss(str);
+	int nbr;
+	iss >> nbr;
+	return nbr;
+}
+
 // Recive from the ready client
 void    Client::recieve(void) {
     if (_done_recv)
@@ -68,7 +76,7 @@ void    Client::recieve(void) {
         _done_recv = true;
         return;
       }
-      if (_req->get_method() == "POST" && stoi(_req->get_req_header().find("Content-Length")->second) \
+      if (_req->get_method() == "POST" && _stoi(_req->get_req_header().find("Content-Length")->second) \
         > _cluster->get_config().client_max_body_size) {
         _req->payload_is_too_large(true);
         _done_recv = true;

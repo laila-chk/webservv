@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/08 11:29:53 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/14 11:10:30 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,12 @@ Response::Response(Cluster *cluster) : _cluster(cluster) {
 Response::~Response() {
 }
 
+// CPP11 std::to_string alternative
+static std::string _to_string(int nbr) {
+  std::stringstream  ss;
+	ss << nbr;
+	return ss.str();
+}
 
 //The purpose of this function is to determine the appropriate Content-Type 
 //The code extracts the file extension from the _path variable of the Request class
@@ -39,7 +45,7 @@ std::string Request::getContentType()
     content["wav"] = "audio/wav";
     content["mp3"] = "audio/mp3";
     content["webm"] = "video/webm";
-	content["mp4"] = "video/mp4";
+		content["mp4"] = "video/mp4";
     content[""] = "application/octet-stream";
     if (content.find(_start_line[1].substr(_start_line[1].find_last_of(".") + 1)) != content.end())
 		return content[_start_line[1].substr(_start_line[1].find_last_of(".") + 1)];
@@ -75,7 +81,7 @@ std::string Response::getStatusMsg(int status)
 		case REQUEST_URI_TOO_LARGE:
 			return "Request URI Too Large";
 		default:
-			throw std::runtime_error("Unknown status code" + std::to_string(status));
+			throw std::runtime_error("Unknown status code" + _to_string(status));
 	}
 }
 
@@ -86,7 +92,7 @@ std::string Response::getStatusMsg(int status)
 void Response::toString(std::string const  &type)
 {
 	this->_header += "HTTP/1.1 ";
-	this->_header += std::to_string(this->_status_code) + " " + getStatusMsg(this->_status_code);
+	this->_header += _to_string(this->_status_code) + " " + getStatusMsg(this->_status_code);
 	this->_header += "\r\n";
 	if (this->_location != "")
 	{
@@ -95,7 +101,7 @@ void Response::toString(std::string const  &type)
 		return ;
 	}
 	this->_header += "Content-Type: " + type + "\r\n";
-	this->_header += "Content-Length: " + std::to_string(this->_body_size) + "\r\n";
+	this->_header += "Content-Length: " + _to_string(this->_body_size) + "\r\n";
 	this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
 
@@ -107,7 +113,7 @@ void Response::toString(std::string const  &type)
 
 std::string Response::get_error_page(std::string page, int code) {
   std::string line("HTTP/1.1 ");
-  line += std::to_string(code) + " ";
+  line += _to_string(code) + " ";
   line += getStatusMsg(code) + "\n";
   std::string res("Content-Type: text/html\nContent-Length: ");
   res = line + res;
@@ -126,7 +132,7 @@ std::string Response::get_error_page(std::string page, int code) {
       break;
     content += std::string(buffer, i);
   }
-  res += std::to_string(content.length()) + "\n\n";
+  res += _to_string(content.length()) + "\n\n";
   res += content;
   return res;
 }
@@ -168,6 +174,7 @@ bool Response::isDirectory(const char *path) {
 	return false;
 }
 
+
 // main mathods
 void  Response::GET(Client *cl) {
   // url :  
@@ -191,13 +198,17 @@ void Response::POST(Client *cl) {
 
 // DELETE request
 void Response::DELETE(Client *cl) {
-  std::filesystem::path url = cl->get_location()->root + cl->get_req()->get_url();
+  std::string url = cl->get_location()->root + cl->get_req()->get_url();
   std::string res;
-  if (std::filesystem::exists(url)) {
-    if (std::filesystem::is_regular_file(url)) {
+	DIR *dir;
+
+  if (!access(url.c_str(), F_OK)) {
+		dir = opendir(url.c_str());
+    if (!dir) {
+			unlink(url.c_str());
       res = get_error_page("src/response_pages/200.html", 200);
-      remove(url);
     } else {
+			closedir(dir);
       res = get_error_page("src/response_pages/403.html", 403);
     }
   } else {

@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/05 11:37:25 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/14 10:59:06 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -145,6 +145,15 @@ std::string rand_name(void) {
     return name;
 }
 
+static bool _is_directory(const char *path) {
+	DIR *dir = opendir(path);
+	if (dir) {
+		closedir(dir);
+		return true;
+	}
+	return false;
+}
+
 // write the readed chunk to the file
 void Request::write_body_chunk(bool & _done_recv, std::string path) {
     if (_done_recv)
@@ -152,7 +161,7 @@ void Request::write_body_chunk(bool & _done_recv, std::string path) {
     std::string suffix(_req_header.find("Content-Type")->second.substr(_req_header.find("Content-Type")->second.find("/") + 1));
     std::ofstream out;
 
-    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+    if (access(path.c_str(), F_OK) || _is_directory(path.c_str())) {
       _not_found = true;
       _done_recv = true;
       return ;
