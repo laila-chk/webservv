@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/14 10:59:06 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/14 16:55:04 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -180,6 +180,16 @@ void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string
         return ;
     if (_filename == "")
         _filename = rand_name();
+
+		if (_req_header.find("Transfer-Encoding")->second.find("Chunked") !=
+		std::string::npos) {
+			// Chinked Transfer encoding ..
+		// need to read one chunk search for first line 
+		// parse the chunk len (HOW: )
+		// read it 
+		// stop when chunk size is zero
+		std::cout << "Chunked Transfer Encoding .." << std::endl;
+		}
 
     int i = 0;
     while (_buffer_size < (size_t)_body_size && i < SIZE) {

@@ -7,7 +7,7 @@ GREEN = '\033[0;32m'
 GRAY = '\033[2;37m'
 ITALIC = '\033[3m'
 
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(INC) $(SANITIZE)
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(INC) 
 
 SRC = src/multiplex/webserv.cpp\
 	src/multiplex/Server.cpp\
@@ -22,20 +22,20 @@ OBJ = $(SRC:.cpp=.o)
 all: $(NAME)
 
 %.o: %.cpp
-	@echo  $(GRAY) $(ITALIC) "Making .. $< " $(NONE)
+	@echo -e $(GRAY) $(ITALIC) "Making .. $< " $(NONE)
 	@c++ $(CPPFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ)
 	@c++ $(CPPFLAGS) $^ -o $(NAME)
-	@echo  $(GREEN) $(ITALIC) "Compiled .." $(NONE)
+	@echo -e $(GREEN) $(ITALIC) "Compiled .." $(NONE)
 
 clean:
 	@rm -rf $(OBJ)
-	@echo  $(GREEN) $(ITALIC) "Objects removed .." $(NONE)
+	@echo -e $(GREEN) $(ITALIC) "Objects removed .." $(NONE)
 
 fclean: clean
 	@rm -rf $(NAME)
-	@echo  $(GREEN) $(ITALIC) "Cleaned .. " $(NONE)
+	@echo -e $(GREEN) $(ITALIC) "Cleaned .. " $(NONE)
 
 re: fclean all
 
