@@ -7,6 +7,7 @@ GREEN = '\033[0;32m'
 GRAY = '\033[2;37m'
 ITALIC = '\033[3m'
 
+CC = g++-11
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(INC) $(SANITIZE)
 
 SRC = src/multiplex/webserv.cpp\
@@ -23,10 +24,10 @@ all: $(NAME)
 
 %.o: %.cpp
 	@echo  $(GRAY) $(ITALIC) "Making .. $< " $(NONE)
-	@c++ $(CPPFLAGS) -c $< -o $@
+	@$(CC) $(CPPFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ)
-	@c++ $(CPPFLAGS) $^ -o $(NAME)
+	@$(CC) $(CPPFLAGS) $^ -o $(NAME)
 	@echo  $(GREEN) $(ITALIC) "Compiled .." $(NONE)
 
 clean:

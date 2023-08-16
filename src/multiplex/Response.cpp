@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/14 11:10:30 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/14 14:43:43 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,6 @@ void  Response::GET(Client *cl) {
 
 // POST request
 void Response::POST(Client *cl) {
-  // Handled in the request part
   std::string res = get_error_page("src/response_pages/201.html", 201);
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
@@ -200,15 +199,12 @@ void Response::POST(Client *cl) {
 void Response::DELETE(Client *cl) {
   std::string url = cl->get_location()->root + cl->get_req()->get_url();
   std::string res;
-	DIR *dir;
 
   if (!access(url.c_str(), F_OK)) {
-		dir = opendir(url.c_str());
-    if (!dir) {
+    if (!isDirectory(url.c_str())) {
 			unlink(url.c_str());
       res = get_error_page("src/response_pages/200.html", 200);
     } else {
-			closedir(dir);
       res = get_error_page("src/response_pages/403.html", 403);
     }
   } else {

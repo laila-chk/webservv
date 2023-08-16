@@ -6,12 +6,13 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/14 10:59:06 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/16 14:49:46 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "include.hpp"
 
 // Constructor
 Request::Request() {
@@ -87,6 +88,7 @@ void    Request::parse_request_header(bool & _done_recv) {
     std::istringstream  _ss(line);
     std::string         buff;
 
+		std::cout << _recv_buffer << std::endl;
     while (_ss >> buff)
         _start_line.push_back(std::string(buff));
     // Check for valid percent encoding (URI)
@@ -107,11 +109,13 @@ void    Request::parse_request_header(bool & _done_recv) {
         return ;
     }
     _buffer_size = 0;
+		// maybe check for other content types and set them as bad request ..
     if ( _req_header.find("Content-Length") == _req_header.end()) {
       _bad_request = true;
       _done_recv = true;
       return;
     }
+		// Loooot of .....................
     _body_size = _stoi(_req_header.find("Content-Length")->second);
     if (!_body_size)
       _done_recv = true;
@@ -161,12 +165,13 @@ void Request::write_body_chunk(bool & _done_recv, std::string path) {
     std::string suffix(_req_header.find("Content-Type")->second.substr(_req_header.find("Content-Type")->second.find("/") + 1));
     std::ofstream out;
 
-    if (access(path.c_str(), F_OK) || _is_directory(path.c_str())) {
+    if (!_is_directory(path.c_str())) {
       _not_found = true;
       _done_recv = true;
       return ;
     }
-    path += "/" + _filename + "." + suffix;
+		path += "/" + _filename;
+		path += (suffix != "octet-stream") ? "." + suffix  : "";
 
 		out.open(path.c_str(), std::ios::binary | std::ios::app);
     out << _recv_buffer;
@@ -178,21 +183,23 @@ void Request::write_body_chunk(bool & _done_recv, std::string path) {
 void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path) {
     if (_done_recv)
         return ;
-    if (_filename == "")
-        _filename = rand_name();
 
-    int i = 0;
-    while (_buffer_size < (size_t)_body_size && i < SIZE) {
-        _i = recv(_socket, _buffer, 1, 0);
-        if (_i == FAIL)
-            throw System();
-        if (!_i) {
-            _done_recv = true;
-            return ;
-        }
-        _recv_buffer += std::string(_buffer, _i);
-        i++;
-        _buffer_size++;
+		_filename = (_filename == "") ? rand_name() : _filename;
+		// if (_req_header.find("Transfer-Encoding") != _req_header.end() 
+		// && _req_header.find("Transfer-Encoding")->second.find("Chunked") != std::string::npos)
+		// 	chunked_encoding(_socket, _done_recv, path);
+	int i = 0;
+  while (_buffer_size < (size_t)_body_size && i < SIZE) {
+      _i = recv(_socket, _buffer, 1, 0);
+      if (_i == FAIL)
+          throw System();
+      if (!_i) {
+          _done_recv = true;
+          return ;
+      }
+      _recv_buffer += std::string(_buffer, _i);
+      i++;
+      _buffer_size++;
     }
     write_body_chunk(_done_recv, path);
     if (_buffer_size == (size_t)_body_size)

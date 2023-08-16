@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:54 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/05 11:13:28 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/16 14:46:43 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Request {
         bool        is_not_found(void);
         void        method_is_not_allowed(bool stat);
         void        payload_is_too_large(bool stat);
+				// void				chunked_encoding(SOCK_FD & _socket, bool & _done_recv, std::string path);
 
 };
 
