@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:00 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/08 11:30:10 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/16 18:59:57 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ class Response {
         bool file_exists(const char *path);
         std::string full_path(locations *var);
         bool isDirectory(const char *path);
+				std::string get_file_content(std::string url);
 };
 
 

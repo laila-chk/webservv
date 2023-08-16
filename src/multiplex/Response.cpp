@@ -6,12 +6,14 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/16 16:44:44 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/16 19:09:24 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include <cstring>
+#include <fstream>
+#include <string>
 Response::Response(Cluster *cluster) : _cluster(cluster) {
 }
 
@@ -117,21 +119,16 @@ std::string Response::get_error_page(std::string page, int code) {
   line += getStatusMsg(code) + "\n";
   std::string res("Content-Type: text/html\nContent-Length: ");
   res = line + res;
+
   std::string content;
-  char buffer[2];
-  int fd = open(page.c_str(), O_RDONLY);
-  if (fd == FAIL) {
-    std::cerr << "Cant open the file" << std::endl;
-    throw System();
-  }
-  while (true) {
-    int i = read(fd, buffer, 1);
-    if (i == FAIL)
+	std::ifstream iss;
+
+	iss.open(page.c_str());
+  if (!iss.is_open()) {
+      std::cerr << "Failed to read image data" << std::endl;
       throw System();
-    if (!i)
-      break;
-    content += std::string(buffer, i);
   }
+	std::getline(iss, content, '\0');
   res += _to_string(content.length()) + "\n\n";
   res += content;
   return res;
@@ -188,7 +185,6 @@ std::string get_full_path(Client *cl, std::string path) {
 			it != cl->get_location()->def_files.end(); it++) {
 		if (!access(std::string(path + "/" + *it).c_str(), F_OK)) {
 			ret = path + "/" + *it;
-			break;
 		}
 	}
 	return ret;
@@ -203,6 +199,12 @@ std::string list_directory_content(Client *cl) {\
 	return content;
 }
 
+std::string Response::get_file_content(std::string url) {
+	(void)url;
+	std::cout << "GET FILE FOMR SERVER" << std::endl;
+	return get_error_page("src/response_pages/200.html", 200);
+}
+
 // main mathods
 void  Response::GET(Client *cl) {
 	std::string res;
@@ -210,14 +212,14 @@ void  Response::GET(Client *cl) {
 	if (isDirectory(path.c_str())) {
 		std::string full_path = get_full_path(cl, path);
 		if (full_path != "") {
-			res = get_error_page(full_path ,200);
+			res = get_file_content(full_path);
 		} else if (cl->get_location()->autoindex) {
 			res = list_directory_content(cl);
 		} else {
     	res = get_error_page("src/response_pages/404.html", 404);
 		}
 	} else if (!access(path.c_str(), F_OK)) {
-    res = get_error_page(path, 200);
+    res = get_file_content(path);
 	} else {
     res = get_error_page("src/response_pages/404.html", 404);
 	}
