@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/14 14:43:43 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/16 16:44:44 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,19 +174,54 @@ bool Response::isDirectory(const char *path) {
 	return false;
 }
 
+// get Request full path
+std::string get_req_path(Client *cl) {
+	std::string url = cl->get_req()->get_url();
+	std::string pattern = cl->get_location()->pattern;
+	std::string path = cl->get_location()->root + "/" + url.substr(url.find(pattern) + pattern.length());
+	return path;
+}
+
+std::string get_full_path(Client *cl, std::string path) {
+	std::string ret;
+	for (std::vector<std::string>::iterator it = cl->get_location()->def_files.begin(); \
+			it != cl->get_location()->def_files.end(); it++) {
+		if (!access(std::string(path + "/" + *it).c_str(), F_OK)) {
+			ret = path + "/" + *it;
+			break;
+		}
+	}
+	return ret;
+}
+
+std::string list_directory_content(Client *cl) {\
+	(void)cl;
+	std::string content = "HTTP/1.1 200 OK\n\
+  Content-Type: text/html\n\
+  Content-Length: 20\n\n\
+  <h1 style=\"font-size:5rem\">FOLDER CONTENT</h1>";
+	return content;
+}
 
 // main mathods
 void  Response::GET(Client *cl) {
-  // url :  
-  // join root and pattern
-  // file ()
-  // directory
-  // redirection : _start_lien[1] = value in return;
-  std::string res("HTTP/1.1 200 OK\n\
-  Content-Type: text/html\n\
-  Content-Length: 20\n\n\
-  <h1 style=\"font-size:5rem\">GET REQUEST</h1>");
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	std::string res;
+	std::string path = get_req_path(cl);
+	if (isDirectory(path.c_str())) {
+		std::string full_path = get_full_path(cl, path);
+		if (full_path != "") {
+			res = get_error_page(full_path ,200);
+		} else if (cl->get_location()->autoindex) {
+			res = list_directory_content(cl);
+		} else {
+    	res = get_error_page("src/response_pages/404.html", 404);
+		}
+	} else if (!access(path.c_str(), F_OK)) {
+    res = get_error_page(path, 200);
+	} else {
+    res = get_error_page("src/response_pages/404.html", 404);
+	}
+   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
 // POST request

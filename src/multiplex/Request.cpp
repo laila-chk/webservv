@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/16 14:59:31 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/16 16:45:50 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,8 +76,6 @@ static int _stoi(std::string str) {
 	iss >> nbr;
 	return nbr;
 }
-
-// parse the client request header
 void    Request::parse_request_header(bool & _done_recv) {
     _recv_buffer = _recv_buffer.substr(0, _recv_buffer.find("\r\n\r\n"));
     std::istringstream  iss(_recv_buffer);
@@ -87,7 +85,6 @@ void    Request::parse_request_header(bool & _done_recv) {
     std::istringstream  _ss(line);
     std::string         buff;
 
-		std::cout << _recv_buffer << std::endl;
     while (_ss >> buff)
         _start_line.push_back(std::string(buff));
     // Check for valid percent encoding (URI)

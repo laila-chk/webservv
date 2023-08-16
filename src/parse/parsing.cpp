@@ -207,7 +207,6 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
       return true;
     }
   }
-  std::cout << buff << std::endl;
   return false;
 }
 
