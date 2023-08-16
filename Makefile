@@ -8,7 +8,7 @@ GRAY = '\033[2;37m'
 ITALIC = '\033[3m'
 
 CC = g++-11
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(INC) $(SANITIZE)
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(INC) 
 
 SRC = src/multiplex/webserv.cpp\
 	src/multiplex/Server.cpp\

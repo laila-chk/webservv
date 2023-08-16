@@ -6,8 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/16 14:49:46 by mtellami         ###   ########.fr       */
-/*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/16 14:59:31 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,9 +184,6 @@ void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string
         return ;
 
 		_filename = (_filename == "") ? rand_name() : _filename;
-		// if (_req_header.find("Transfer-Encoding") != _req_header.end() 
-		// && _req_header.find("Transfer-Encoding")->second.find("Chunked") != std::string::npos)
-		// 	chunked_encoding(_socket, _done_recv, path);
 	int i = 0;
   while (_buffer_size < (size_t)_body_size && i < SIZE) {
       _i = recv(_socket, _buffer, 1, 0);
@@ -200,7 +196,7 @@ void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string
       _recv_buffer += std::string(_buffer, _i);
       i++;
       _buffer_size++;
-    }
+	}
     write_body_chunk(_done_recv, path);
     if (_buffer_size == (size_t)_body_size)
         _done_recv = true;
