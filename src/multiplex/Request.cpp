@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/17 12:29:27 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/17 14:18:36 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -89,7 +89,6 @@ void    Request::parse_request_header(bool & _done_recv) {
 
     while (_ss >> buff)
         _start_line.push_back(std::string(buff));
-    // Check for valid percent encoding (URI)
     if (_start_line.size() != 3) {
       _bad_request = true;
       _done_recv = true;
@@ -178,6 +177,7 @@ void Request::write_body_chunk(bool & _done_recv, std::string path) {
 void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path) {
     if (_done_recv)
         return ;
+		// check both shit ...
     if (_filename == "")
         _filename = rand_name();
 
