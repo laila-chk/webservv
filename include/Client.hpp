@@ -44,6 +44,7 @@ class Client {
         void    recv_body(void);
         void    get_matched_location(void);
         Request *get_req(void);
+        locations *get_location();
 };
 
 #endif

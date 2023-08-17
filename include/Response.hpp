@@ -32,6 +32,7 @@ enum ERRORS {
 		METHOD_NOT_ALLOWED    	  = 405,
 		REQUEST_ENTITY_TOO_LARGE  = 413,
 		REQUEST_URI_TOO_LARGE     = 414,
+    INTERNAL_SERVER_ERROR     = 500,
 		NOT_IMPLEMENTED           = 501,
 };
 
@@ -63,10 +64,14 @@ class Response {
         void  POST(Client *cl);
         void  DELETE(Client *cl);
 
+        
+        void getListOfFiles(const char *path, std::vector<std::string> &list);
         bool file_exists(const char *path);
+        std::string full_path(locations *var);
         char *joinRootAndPattern(const char *root, const char *pattern);
         bool isDirectory(const char *path);
-        void getListOfFiles(const char *path, std::vector<std::string> &list);
+        void removeDirectory(const char* path);
+        void to_String_Delete( void );
 };
 
 

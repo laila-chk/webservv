@@ -74,6 +74,8 @@ std::string Response::getStatusMsg(int status)
 			return "Request Entity Too Large";
 		case REQUEST_URI_TOO_LARGE:
 			return "Request URI Too Large";
+    case INTERNAL_SERVER_ERROR:
+      return "Internal server error";
 		default:
 			throw std::runtime_error("Unknown status code" + std::to_string(status));
 	}
@@ -83,21 +85,21 @@ std::string Response::getStatusMsg(int status)
 // {
 // 	this->_body_size = size;
 // }
-void Response::toString(std::string const  &type)
-{
-	this->_header += "HTTP/1.1 ";
-	this->_header += std::to_string(this->_status_code) + " " + getStatusMsg(this->_status_code);
-	this->_header += "\r\n";
-	if (this->_location != "")
-	{
-		this->_header += "Location: " + this->_location + "\r\n";
-		this->_header += std::string("Connection: close") + "\r\n\r\n";
-		return ;
-	}
-	this->_header += "Content-Type: " + type + "\r\n";
-	this->_header += "Content-Length: " + std::to_string(this->_body_size) + "\r\n";
-	this->_header += std::string("Connection: close") + "\r\n\r\n";
-}
+// void Response::toString(std::string const  &type)
+// {
+// 	this->_header += "HTTP/1.1 ";
+// 	this->_header += std::to_string(this->_status_code) + " " + getStatusMsg(this->_status_code);
+// 	this->_header += "\r\n";
+// 	if (this->_location != "")
+// 	{
+// 		this->_header += "Location: " + this->_location + "\r\n";
+// 		this->_header += std::string("Connection: close") + "\r\n\r\n";
+// 		return ;
+// 	}
+// 	this->_header += "Content-Type: " + type + "\r\n";
+// 	this->_header += "Content-Length: " + std::to_string(this->_body_size) + "\r\n";
+// 	this->_header += std::string("Connection: close") + "\r\n\r\n";
+// }
 
 
 // int Response:: get_methode(Config &config_file)
@@ -214,20 +216,97 @@ void Response::POST(Client *cl) {
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
-void Response::DELETE(Client *cl) {
-  std::filesystem::path url = "upload/" + cl->get_req()->get_url();
-  std::string res;
-  if (std::filesystem::exists(url)) {
-    if (std::filesystem::is_regular_file(url)) {
-      res = get_error_page("src/response_pages/200.html", 200);
-      remove(url);
-    } else {
-      res = get_error_page("src/response_pages/403.html", 403);
-    }
-  } else {
-    res = get_error_page("src/response_pages/404.html", 404);
-  }
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+
+Request  *Client::get_req() {
+  return _req;
 }
 
+locations *Client::get_location() {
+  return _matched;
+}
+
+
+void Response:: removeDirectory(const char* path)
+{
+    std::vector<std::string> stack;
+    stack.push_back(path);
+
+    while (!stack.empty())
+    {
+        const std::string currentPath = stack.back();
+        stack.pop_back();
+
+        DIR* dir = opendir(currentPath.c_str());
+        if (!dir)
+        {
+            std::cerr << "Error opening directory: " << currentPath << std::endl;
+            continue;
+        }
+
+        dirent* entry;
+        while ((entry = readdir(dir)) != nullptr)
+        {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                continue;
+
+            std::string file_path = currentPath + "/" + entry->d_name;
+
+            if (entry->d_type == DT_DIR)
+                stack.push_back(file_path);
+            else
+                remove(file_path.c_str());
+        }
+
+        closedir(dir);
+        rmdir(currentPath.c_str());
+  }
+}
+
+void Response::to_String_Delete( void )
+{
+	this->_header += "HTTP/1.1 ";
+	this->_header += std::to_string(this->_status_code) + " " + getStatusMsg(this->_status_code) + "\r\n";
+	this->_header += std::string("Server: WebServ/1.0.0 (Unix)") + "\r\n";
+	this->_header += std::string("Connection: close") + "\r\n\r\n";
+}
+void Response::DELETE(Client *cl) {
+  std::string url = cl->get_location()->root + cl->get_req()->get_url();
+  //std:: string url = joinRootAndPattern(cl->get_location()->root.c_str(), cl->get_req()->get_url().c_str());
+  std::string res;
+    if (isDirectory(url.c_str()))
+    {
+        removeDirectory(url.c_str());
+        this->_status_code = NO_CONTENT;
+    }
+    else
+    {
+        if (access(url.c_str(), F_OK) == -1)
+            this->_status_code = FORBIDDEN;
+        else if (access(url.c_str(), W_OK) == -1)
+            this->_status_code = FORBIDDEN;
+        else if (remove(url.c_str()) == 0)
+            this->_status_code = NO_CONTENT;
+        else
+            this->_status_code = INTERNAL_SERVER_ERROR;
+    }
+    if (this->_status_code >= BAD_REQUEST)
+        res = get_error_page("src/response_pages/400.html", 400);
+    else
+        this->to_String_Delete();
+
+  // std::string url = cl->get_location()->root + cl->get_req()->get_url();
+  // std::string res;
+
+  // if (!access(url.c_str(), F_OK)) {
+  //   if (!isDirectory(url.c_str())) {
+	// 		unlink(url.c_str());
+  //     res = get_error_page("src/response_pages/200.html", 200);
+  //   } else {
+  //     res = get_error_page("src/response_pages/403.html", 403);
+  //   }
+  // } else {
+  //   res = get_error_page("src/response_pages/404.html", 404);
+  // }
+  // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+}
 
