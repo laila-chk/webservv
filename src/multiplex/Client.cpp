@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/03 11:44:20 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/17 23:33:45 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,12 +43,25 @@ Request  * Client::get_req() {
   return _req;
 }
 
+locations *Client::get_location() {
+  return _matched;
+}
+
+static int _stoi(std::string str) {
+	std::istringstream iss(str);
+	int nbr;
+	iss >> nbr;
+	return nbr;
+}
+
 // Recive from the ready client
 void    Client::recieve(void) {
     if (_done_recv)
         return ;
   if (!_req->recieve_header()) {
       _req->get_request_header(_socket, _done_recv);
+			if (_done_recv)
+				return ;
       get_matched_location();
       if (!_matched) {
         _done_recv = true;
@@ -63,7 +76,7 @@ void    Client::recieve(void) {
         _req->method_is_not_allowed(true);
         _done_recv = true;
       }
-      if (_req->get_method() == "POST" && stoi(_req->get_req_header().find("Content-Length")->second) \
+      if (_req->get_method() == "POST" && _stoi(_req->get_req_header().find("Content-Length")->second) \
         > _cluster->get_config().client_max_body_size) {
         _req->payload_is_too_large(true);
         _done_recv = true;

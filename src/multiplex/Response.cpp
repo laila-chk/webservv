@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/08 11:29:53 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/17 19:23:34 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ char *Response::joinRootAndPattern(const char *root, const char *pattern) {
 	size_t patternLen = std::strlen(pattern);
 	char *fullPath = new char[rootLen + patternLen + 2];
 	std::strcpy(fullPath, root);
-	std::strncat(fullPath, "/", 1);
+	std::strncat(fullPath, "/", 2);
 	std::strncat(fullPath, pattern, patternLen);
 	return (fullPath);
 }
@@ -215,16 +215,6 @@ void Response::POST(Client *cl) {
   std::string res = get_error_page("src/response_pages/201.html", 201);
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
-
-
-Request  *Client::get_req() {
-  return _req;
-}
-
-locations *Client::get_location() {
-  return _matched;
-}
-
 
 void Response:: removeDirectory(const char* path)
 {

@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/05 11:37:25 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/18 00:40:14 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -152,7 +152,7 @@ void Request::write_body_chunk(bool & _done_recv, std::string path) {
     std::string suffix(_req_header.find("Content-Type")->second.substr(_req_header.find("Content-Type")->second.find("/") + 1));
     std::ofstream out;
 
-    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+    if (!std::filesystem::is_directory(path)) {
       _not_found = true;
       _done_recv = true;
       return ;
@@ -165,14 +165,70 @@ void Request::write_body_chunk(bool & _done_recv, std::string path) {
     _recv_buffer = "";
 }
 
+bool	is_chunked_encoded(std::map<std::string, std::string> _req_header) {
+	std::map<std::string, std::string>::iterator it;
+	for (it = _req_header.begin(); it != _req_header.end(); it++) {
+		if (it->first == "Transfer-Encoding" && it->second.find("chunked") != std::string::npos)
+			return true;
+	}
+	return false;
+}
+
+void	Request::transfer_encoding(SOCK_FD & _socket, bool & _done_recv, std::string path) {
+	int i = 0;
+	if (_filename == "")
+		_filename = rand_name();
+	while (i < SIZE) {
+	// get chunkn size
+		std::string line;
+		for (;;) {
+			_i = recv(_socket, _buffer, 1, 0);
+			if (_i == FAIL)
+				throw System();
+			if (!_i) {
+				_done_recv = true;
+				return ;
+			}
+			if (line.find("\r\n") != std::string::npos)
+				break;
+			line += std::string(_buffer, _i);
+		}
+		std::stringstream ss(line);
+		int chunkSize;
+		ss >> std::hex >> chunkSize;
+		if (!chunkSize) {
+			_done_recv = true;
+			return ;
+		}
+		// read the chuunk
+		_recv_buffer += std::string(_buffer, _i);
+		for (int j = 0; j < chunkSize; j++) {
+			_i = recv(_socket, _buffer, 1, 0);
+			if (!_i) {
+				_done_recv = true;
+				return;
+			}
+  	  _recv_buffer += std::string(_buffer, _i);
+		}
+		i += chunkSize;
+		// write to body
+		write_body_chunk(_done_recv, path);
+	}
+}
+
 // get the client request body by chunks
 void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path) {
     if (_done_recv)
         return ;
+		int i = 0;
+		if (is_chunked_encoded(_req_header)) {
+			transfer_encoding(_socket, _done_recv, path);
+			return;
+		}
+		// TODO: multimedia Contenr-Type (boundary)
     if (_filename == "")
         _filename = rand_name();
 
-    int i = 0;
     while (_buffer_size < (size_t)_body_size && i < SIZE) {
         _i = recv(_socket, _buffer, 1, 0);
         if (_i == FAIL)
