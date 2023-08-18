@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/17 23:33:45 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/18 18:29:49 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,6 @@ void    Client::recieve(void) {
         return ;
   if (!_req->recieve_header()) {
       _req->get_request_header(_socket, _done_recv);
-			if (_done_recv)
-				return ;
       get_matched_location();
       if (!_matched) {
         _done_recv = true;
@@ -110,7 +108,6 @@ void  Client::get_matched_location() {
         return ;
       }
     }
-
   _done_recv = true;
 }
 

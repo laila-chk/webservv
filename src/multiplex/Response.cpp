@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/17 19:23:34 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/18 18:38:24 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,7 @@ void Response::to_String_Delete( void )
 	this->_header += std::string("Server: WebServ/1.0.0 (Unix)") + "\r\n";
 	this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
+
 std::string Response::final_url(Client *cl) {
     size_t patternLen = cl->get_location()->pattern.length();
     std::string last_url = cl->get_location()->root + "/" + \
@@ -267,9 +268,7 @@ std::string Response::final_url(Client *cl) {
     return last_url;
 }
 void Response::DELETE(Client *cl) {
-    std::string url = final_url(cl);
-  // std::string url = cl->get_location()->root + cl->get_req()->get_url();
-  //std:: string url = joinRootAndPattern(cl->get_location()->root.c_str(), cl->get_req()->get_url().c_str());
+  std::string url = final_url(cl);
   std::string res;
     if (isDirectory(url.c_str()))
     {
@@ -306,5 +305,7 @@ void Response::DELETE(Client *cl) {
   //   res = get_error_page("src/response_pages/404.html", 404);
   // }
   // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	res = get_error_page("src/response_pages/200.html", 200);
+  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 

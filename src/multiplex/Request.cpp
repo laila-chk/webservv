@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/18 00:40:14 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/18 18:33:29 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -220,6 +220,7 @@ void	Request::transfer_encoding(SOCK_FD & _socket, bool & _done_recv, std::strin
 void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path) {
     if (_done_recv)
         return ;
+		std::cout << "........." << std::endl;
 		int i = 0;
 		if (is_chunked_encoded(_req_header)) {
 			transfer_encoding(_socket, _done_recv, path);
