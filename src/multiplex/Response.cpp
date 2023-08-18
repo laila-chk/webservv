@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/18 18:38:24 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/18 23:44:41 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,12 @@ Response::Response(Cluster *cluster) : _cluster(cluster) {
 Response::~Response() {
 }
 
+// std::to_string alternative cuase it c++11 function
+static std::string _to_string(int n) {
+	std::ostringstream oss;
+	oss << n;
+	return oss.str();
+}
 
 //The purpose of this function is to determine the appropriate Content-Type 
 //The code extracts the file extension from the _path variable of the Request class
@@ -77,7 +83,7 @@ std::string Response::getStatusMsg(int status)
     case INTERNAL_SERVER_ERROR:
       return "Internal server error";
 		default:
-			throw std::runtime_error("Unknown status code" + std::to_string(status));
+			throw std::runtime_error("Unknown status code" + _to_string(status));
 	}
 }
 
@@ -107,9 +113,10 @@ std::string Response::getStatusMsg(int status)
 
 // }
 
+
 std::string Response::get_error_page(std::string page, int code) {
   std::string line("HTTP/1.1 ");
-  line += std::to_string(code) + " ";
+  line += _to_string(code) + " ";
   line += getStatusMsg(code) + "\n";
   std::string res("Content-Type: text/html\nContent-Length: ");
   res = line + res;
@@ -128,7 +135,7 @@ std::string Response::get_error_page(std::string page, int code) {
       break;
     content += std::string(buffer, i);
   }
-  res += std::to_string(content.length()) + "\n\n";
+  res += _to_string(content.length()) + "\n\n";
   res += content;
   return res;
 }
@@ -234,7 +241,7 @@ void Response:: removeDirectory(const char* path)
         }
 
         dirent* entry;
-        while ((entry = readdir(dir)) != nullptr)
+        while ((entry = readdir(dir)))
         {
             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
                 continue;
@@ -255,7 +262,7 @@ void Response:: removeDirectory(const char* path)
 void Response::to_String_Delete( void )
 {
 	this->_header += "HTTP/1.1 ";
-	this->_header += std::to_string(this->_status_code) + " " + getStatusMsg(this->_status_code) + "\r\n";
+	this->_header += _to_string(this->_status_code) + " " + getStatusMsg(this->_status_code) + "\r\n";
 	this->_header += std::string("Server: WebServ/1.0.0 (Unix)") + "\r\n";
 	this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
@@ -290,7 +297,8 @@ void Response::DELETE(Client *cl) {
         res = get_error_page("src/response_pages/400.html", 400);
     else
         this->to_String_Delete();
-
+		res = get_error_page("src/response_pages/200.html", 200);
+		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
   // std::string url = cl->get_location()->root + cl->get_req()->get_url();
   // std::string res;
 
@@ -305,7 +313,5 @@ void Response::DELETE(Client *cl) {
   //   res = get_error_page("src/response_pages/404.html", 404);
   // }
   // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
-	res = get_error_page("src/response_pages/200.html", 200);
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 

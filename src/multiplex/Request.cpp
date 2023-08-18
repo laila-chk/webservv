@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/18 18:33:29 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/18 23:48:23 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -89,7 +89,6 @@ void    Request::parse_request_header(bool & _done_recv) {
 
     while (_ss >> buff)
         _start_line.push_back(std::string(buff));
-    // Check for valid percent encoding (URI)
     if (_start_line.size() != 3) {
       _bad_request = true;
       _done_recv = true;
@@ -121,9 +120,7 @@ void    Request::parse_request_header(bool & _done_recv) {
 void    Request::get_request_header(SOCK_FD & _socket, bool & _done_recv) {
     while (_recv_buffer.find("\r\n\r\n") == std::string::npos) {
         _i = recv(_socket, _buffer, 1, 0);
-        if (_i == FAIL)
-            throw System();
-        if (!_i) {
+        if (_i == FAIL || !_i) {
             _done_recv = true;
             return;
         }
@@ -145,19 +142,39 @@ std::string rand_name(void) {
     return name;
 }
 
+// get file extention from content type
+std::string get_extention(std::string content) {
+	std::string suffix;
+	if (content == "application/octet-stream")
+		suffix = "";
+	suffix = content.substr(content.find("/") + 1);
+	if (suffix[suffix.length() - 1] == '\r')
+		suffix = suffix.substr(0, suffix.length() -1);
+	return suffix;
+}
+
+static bool is_directory(std::string path) {
+	DIR* dir = opendir(path.c_str());
+	if (dir) {
+		closedir(dir);
+		return true;
+	}
+	return false;
+}
+
 // write the readed chunk to the file
 void Request::write_body_chunk(bool & _done_recv, std::string path) {
     if (_done_recv)
         return;
-    std::string suffix(_req_header.find("Content-Type")->second.substr(_req_header.find("Content-Type")->second.find("/") + 1));
+    std::string suffix = get_extention(_req_header.find("Content-Type")->second);
     std::ofstream out;
 
-    if (!std::filesystem::is_directory(path)) {
+    if (is_directory(path)) {
       _not_found = true;
       _done_recv = true;
       return ;
     }
-    path += "/" + _filename + "." + suffix;
+    path += _filename + "." + suffix;
 
 		out.open(path.c_str(), std::ios::binary | std::ios::app);
     out << _recv_buffer;
@@ -183,9 +200,7 @@ void	Request::transfer_encoding(SOCK_FD & _socket, bool & _done_recv, std::strin
 		std::string line;
 		for (;;) {
 			_i = recv(_socket, _buffer, 1, 0);
-			if (_i == FAIL)
-				throw System();
-			if (!_i) {
+			if (_i == FAIL || !_i) {
 				_done_recv = true;
 				return ;
 			}
@@ -204,7 +219,7 @@ void	Request::transfer_encoding(SOCK_FD & _socket, bool & _done_recv, std::strin
 		_recv_buffer += std::string(_buffer, _i);
 		for (int j = 0; j < chunkSize; j++) {
 			_i = recv(_socket, _buffer, 1, 0);
-			if (!_i) {
+			if (_i == FAIL || !_i) {
 				_done_recv = true;
 				return;
 			}
@@ -220,7 +235,6 @@ void	Request::transfer_encoding(SOCK_FD & _socket, bool & _done_recv, std::strin
 void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path) {
     if (_done_recv)
         return ;
-		std::cout << "........." << std::endl;
 		int i = 0;
 		if (is_chunked_encoded(_req_header)) {
 			transfer_encoding(_socket, _done_recv, path);
@@ -228,13 +242,12 @@ void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string
 		}
 		// TODO: multimedia Contenr-Type (boundary)
     if (_filename == "")
-        _filename = rand_name();
+			_filename = "image";
+        // _filename = rand_name();
 
     while (_buffer_size < (size_t)_body_size && i < SIZE) {
         _i = recv(_socket, _buffer, 1, 0);
-        if (_i == FAIL)
-            throw System();
-        if (!_i) {
+        if (_i == FAIL || !_i) {
             _done_recv = true;
             return ;
         }
