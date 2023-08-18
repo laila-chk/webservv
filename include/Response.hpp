@@ -68,10 +68,11 @@ class Response {
         void getListOfFiles(const char *path, std::vector<std::string> &list);
         bool file_exists(const char *path);
         std::string full_path(locations *var);
-        char *joinRootAndPattern(const char *root, const char *pattern);
+        // char *joinRootAndPattern(const char *root, const char *pattern);
         bool isDirectory(const char *path);
         void removeDirectory(const char* path);
         void to_String_Delete( void );
+        std::string final_url(Client *cl) ;
 };
 
 

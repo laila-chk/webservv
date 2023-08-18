@@ -154,15 +154,15 @@ void  Response::method_not_allowed(Client *cl) {
 }
 
 
-char *Response::joinRootAndPattern(const char *root, const char *pattern) {
-	size_t rootLen = std::strlen(root);
-	size_t patternLen = std::strlen(pattern);
-	char *fullPath = new char[rootLen + patternLen + 2];
-	std::strcpy(fullPath, root);
-	std::strncat(fullPath, "/", 2);
-	std::strncat(fullPath, pattern, patternLen);
-	return (fullPath);
-}
+// char *Response::joinRootAndPattern(const char *root, const char *pattern) {
+// 	size_t rootLen = std::strlen(root);
+// 	size_t patternLen = std::strlen(pattern);
+// 	char *fullPath = new char[rootLen + patternLen + 2];
+// 	std::strcpy(fullPath, root);
+// 	std::strncat(fullPath, "/", 2);
+// 	std::strncat(fullPath, pattern, patternLen);
+// 	return (fullPath);
+// }
 
 bool Response::file_exists(const char *path) {
 	return (access(path, F_OK) == 0);
@@ -259,8 +259,16 @@ void Response::to_String_Delete( void )
 	this->_header += std::string("Server: WebServ/1.0.0 (Unix)") + "\r\n";
 	this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
+std::string Response::final_url(Client *cl) {
+    size_t patternLen = cl->get_location()->pattern.length();
+    std::string last_url = cl->get_location()->root + "/" + \
+      cl->get_req()->get_url().substr(cl->get_req()->get_url().find(cl->get_location()->pattern) + patternLen);
+    std::cout << last_url << std::endl;
+    return last_url;
+}
 void Response::DELETE(Client *cl) {
-  std::string url = cl->get_location()->root + cl->get_req()->get_url();
+    std::string url = final_url(cl);
+  // std::string url = cl->get_location()->root + cl->get_req()->get_url();
   //std:: string url = joinRootAndPattern(cl->get_location()->root.c_str(), cl->get_req()->get_url().c_str());
   std::string res;
     if (isDirectory(url.c_str()))
