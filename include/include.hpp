@@ -22,6 +22,7 @@
 #include <signal.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h> 
 
 #include <fstream>
 #include <iostream>

@@ -108,12 +108,6 @@ std::string Response::getStatusMsg(int status)
 // }
 
 
-// int Response:: get_methode(Config &config_file)
-// {
-
-// }
-
-
 std::string Response::get_error_page(std::string page, int code) {
   std::string line("HTTP/1.1 ");
   line += _to_string(code) + " ";
@@ -161,16 +155,6 @@ void  Response::method_not_allowed(Client *cl) {
 }
 
 
-// char *Response::joinRootAndPattern(const char *root, const char *pattern) {
-// 	size_t rootLen = std::strlen(root);
-// 	size_t patternLen = std::strlen(pattern);
-// 	char *fullPath = new char[rootLen + patternLen + 2];
-// 	std::strcpy(fullPath, root);
-// 	std::strncat(fullPath, "/", 2);
-// 	std::strncat(fullPath, pattern, patternLen);
-// 	return (fullPath);
-// }
-
 bool Response::file_exists(const char *path) {
 	return (access(path, F_OK) == 0);
 }
@@ -186,37 +170,160 @@ bool Response::isDirectory(const char *path) {
 }
 // If autoindex is enabled for a specific directory, the server will generate an HTML page that lists the contents (files 
 //and subdirectories) of that directory and send it as the response to the user's request.
-void Response::getListOfFiles(const char *path, std::vector<std::string> &list) {
-	DIR* dir = opendir(path);
-	if (dir != NULL)
+// void Response::getListOfFiles(const char *path, std::vector<std::string> &list) {
+// 	DIR* dir = opendir(path);
+// 	if (dir != NULL)
+// 	{
+// 		struct dirent* entry;
+// 		entry = readdir(dir);
+// 		while (entry)
+// 		{
+// 			if (entry->d_type == DT_REG || entry->d_type == DT_DIR)
+// 			{
+// 				list.push_back(entry->d_name);
+// 			}
+// 			entry = readdir(dir);
+// 		}
+// 		closedir(dir);
+// 	}
+// }
+void Response::to_string_get(Client *cl)
+{
+	this->_header += "HTTP/1.1 ";
+	this->_header += _to_string(this->_status_code) + " " + getStatusMsg(this->_status_code) + "\r\n";
+	this->_header += std::string("Server: WebServ/1.0.0 (Unix)") + "\r\n";
+	if (this->_status_code >= MOVED_PERMANENTLY and this->_status_code <= TEMPORARY_REDIRECT)
 	{
-		struct dirent* entry;
-		entry = readdir(dir);
-		while (entry)
-		{
-			if (entry->d_type == DT_REG || entry->d_type == DT_DIR)
-			{
-				list.push_back(entry->d_name);
-			}
-			entry = readdir(dir);
-		}
-		closedir(dir);
+		//if ((cl->get_location()->redir_path.empty()))  //redirection url is empty )
+      //this->_header+= "Location: " + cl->get_req()->get_url() + "\r\n";
+		//else
+		// 	this->_header += "Location: " + cl->get_location()->redir_path + "\r\n";
+		
 	}
+	this->_header += std::string("Accept-Ranges: bytes") + "\r\n";
+	this->_header += "Content-Type: " + getContentType() + "\r\n";
+	// this->_header += "Content-Length: " + _to_string(?) + "\r\n";
+	this->_header += std::string("Connection: close") + "\r\n\r\n";
+}
+// main mathods
+
+
+void Response::handleDirectoryRequest() {
+
 }
 
-// main mathods
-void  Response::GET(Client *cl) {
-  // url :  
-  // join root and pattern
-  // file ()
-  // directory
-  // redirection : _start_lien[1] = value in return;
-  std::string res("HTTP/1.1 200 OK\n\
-  Content-Type: text/html\n\
-  Content-Length: 20\n\n\
-  <h1 style=\"font-size:5rem\">GET REQUEST</h1>");
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+//this function calculates and 
+//assigns the size of a file to the _body_size
+void Response::setBodySize(std::string &path)
+{
+	struct stat st;
+	stat(path.c_str(), &st);
+	this->_body_size = st.st_size;
 }
+
+void Response::handleFileRequest(Client *cl) {
+   std::string url = final_url(cl);
+    if (access(url.c_str(), F_OK) == -1) {
+        this->_status_code = NOT_FOUND;
+    } else if (access(url.c_str(), R_OK) == -1) {
+        this->_status_code = FORBIDDEN;
+    } else {
+        this->setBodySize(url);
+    }
+}
+
+
+bool	Response::redirection()
+{
+	
+	
+}
+// std::string	Response::get_exetention(std::map<std::string, std::string> mime, std::string exe)
+// {
+// 	size_t	pos = exe.find_last_of(".");
+// 	if (pos != std::string::npos)
+// 		exe = exe.substr(pos);
+// 	for (std::map<std::string, std::string>::iterator _it = mime.begin(); _it != mime.end(); _it++)
+// 	{
+// 		if (_it->second == exe)
+// 			return (_it->first);
+// 	}
+// 	return ("application/octet-stream");
+// }
+void	Response::auto_index(Client *client, std::string uri)
+{
+	DIR				*dir;
+    struct dirent	*ent;
+	
+	std::string	html = "<html><head><title>auto_index</title></head><body style=\"margin: 50px;\"><h1>Index of " + uri + "</h1><hr><br><br> <table style=\"width:60%\">";
+	dir = opendir (uri.c_str());
+	if (dir)
+    {
+    while ((ent = readdir (dir)) != NULL)
+		{
+			struct stat	t_stat;
+			int			file_size;
+			std::ifstream in_file((uri + ent->d_name), std::ios::binary);
+			html += "<tr><td><a href=\"" + std::string(ent->d_name);
+			if (isDirectory((uri + ent->d_name).c_str()))
+				html += "/";
+			html += "\">" + std::string(ent->d_name) + "</a></td>";
+			stat((uri + ent->d_name).c_str(), &t_stat);
+			struct tm	*time_info;
+			time_info = localtime(&t_stat.st_ctime);
+			in_file.seekg(0, std::ios::end);
+			file_size = in_file.tellg();
+			html += "<td>" + std::string(asctime(time_info)) + "</td><td>" + std::to_string(file_size) + "</td>";
+		}
+      closedir (dir);
+  }
+  else
+	{
+    std::string res = get_error_page("src/response_pages/501.html", 501);
+		return ;
+	}
+	html += "</body> </html>";
+	std::string	res = "HTTP/1.1 200\r\nConnection: close\r\nContent-Length: " + _to_string(html.length()) + "\r\nContent-Type: text/html\r\n\r\n";
+  send(client->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	send(client->get_connect_fd(), html.c_str(), html.length(), 0);
+}
+
+void Response::GET(Client *cl ) {
+     std::string url = final_url(cl);
+     std::string res;
+    if (isDirectory(url.c_str())) {
+        handleDirectoryRequest();
+    } else {
+        handleFileRequest(cl);
+    }
+    // Generate response based on the status code
+    if (this->_status_code >= BAD_REQUEST) {
+         res = get_error_page("src/response_pages/400.html", 400);
+    } else {
+        this->toStringGet();
+        // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+        
+    }
+    // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+
+
+    //ela kan URL directory ghadi t joini m3a dok files li f ''def_files" 
+    //o checki b access, ela malqiti ta wahd ghatchecki 
+    //autoindex if on => generate html that list directory content else NOT FOUND
+}
+
+// void  Response::GET(Client *cl) {
+//   // url :  
+//   // join root and pattern
+//   // file ()
+//   // directory
+//   // redirection : _start_lien[1] = value in return;
+//   std::string res("HTTP/1.1 200 OK\n\
+//   Content-Type: text/html\n\
+//   Content-Length: 20\n\n\
+//   <h1 style=\"font-size:5rem\">GET REQUEST</h1>");
+//   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+// }
 
 void Response::POST(Client *cl) {
   std::string res = get_error_page("src/response_pages/201.html", 201);

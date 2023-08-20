@@ -18,6 +18,7 @@
 #include "Request.hpp"
 #include "Client.hpp"
 
+
 class Client;
 
 enum ERRORS {
@@ -25,6 +26,7 @@ enum ERRORS {
 		CREATED               	  = 201,
 		NO_CONTENT            	  = 204,
     MOVED_PERMANENTLY     	  = 301,
+    TEMPORARY_REDIRECT    	  = 307,
 		BAD_REQUEST           	  = 400,
 		UNAUTHORIZED          	  = 401,
 		FORBIDDEN             	  = 403,
@@ -52,7 +54,6 @@ class Response {
         std::string getStatusMsg(int status);
         void toString( std::string const  &type);
         void toStringGet();
-        void setBodySize(off_t size);
         std::string getContentType();
         ~Response(void);
         std::string get_error_page(std::string page, int code);
@@ -68,11 +69,19 @@ class Response {
         void getListOfFiles(const char *path, std::vector<std::string> &list);
         bool file_exists(const char *path);
         std::string full_path(locations *var);
-        // char *joinRootAndPattern(const char *root, const char *pattern);
         bool isDirectory(const char *path);
         void removeDirectory(const char* path);
         void to_String_Delete( void );
         std::string final_url(Client *cl) ;
+
+
+        void to_string_get(Client *cl);
+        void handleFileRequest(Client *cl);
+        void setBodySize(std::string &path);
+        void handleDirectoryRequest() ;
+        // std::string	get_exetention(std::map<std::string, std::string> mime, std::string exe);
+        void	auto_index(Client *client, std::string uri);
+        bool	Response::redirection()
 };
 
 
