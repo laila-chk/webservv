@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/21 20:07:55 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/22 13:12:48 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -109,6 +109,11 @@ void    Request::parse_request_header(bool & _done_recv) {
     if ( _req_header.find("Content-Length") == _req_header.end()) {
       _bad_request = true;
       _done_recv = true;
+      return;
+    }
+		if (_req_header.find("Content-Type")->second.find("multipart") != std::string::npos) {
+      _bad_request = true;
+			_done_recv = true;
       return;
     }
     _body_size = _stoi(_req_header.find("Content-Length")->second);
