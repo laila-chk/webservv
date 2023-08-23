@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/23 18:54:56 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/23 19:15:20 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,24 +87,6 @@ std::string Response::getStatusMsg(int status)
   default:
     throw std::runtime_error("Unknown status code" + _to_string(status));
   }
-}
-
-void Response::toString(std::string const  &type, Client *cl)
-{
-	this->_header += "HTTP/1.1 ";
-	this->_header += _to_string(this->_status_code) + " " + getStatusMsg(this->_status_code);
-	this->_header += "\r\n";
-	if (!cl->get_location()->redir_path.empty())
-	{
-		this->_header += "Location: " + cl->get_location()->redir_path + "\r\n";
-		this->_header += std::string("Connection: close") + "\r\n\r\n";
-		return ;
-	}
-	std::string url = final_url(cl);
-	setBodySize(url);
-	this->_header += "Content-Type: " + type + "\r\n";
-	this->_header += "Content-Length: " + std::to_string(_body_size) + "\r\n";
-	this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
 
 std::string Response::get_error_page(std::string page, int code)
@@ -228,62 +210,14 @@ void Response::handleFileRequest(Client *cl)
     this->setBodySize(url);
 		_status_code = 200;
 		to_string_get(cl, url);
-		get_body_content(cl, url);
+		// if normal file
+			get_body_content(cl, url);
+		// else if CGI
+		//  call laila function
 		// get body content
 		std::string res = _header + _body;
 		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
   }
-}
-//useful for processing lists of indexes or filenames
-std::vector<std::string> Response:: split(std::string &str, char delim, bool keepDelim)
-{
-	std::vector<std::string> result;
-	size_t start = 0;
-
-	for (size_t i = 0; i < str.size(); i++)
-	{
-		if (str[i] == delim)
-		{
-			if ( keepDelim )
-				result.push_back(str.substr(start, i - start + 1));
-			else
-				result.push_back(str.substr(start, i - start));
-			start = i + 1;
-		}
-	}
-	if (start < str.size())
-		result.push_back(str.substr(start));
-
-	return result;
-}
-
-//checks if a file name exists in a specific directory
-bool Response:: fileExistsInDirectory(std::string &path, const std::string &fileName) {
-    DIR *dir = opendir(path.c_str());
-    if (dir) {
-        struct dirent *ent;
-        while ((ent = readdir(dir)) != NULL) {
-            if (ent->d_name == fileName) {
-                closedir(dir);
-                return true;
-            }
-        }
-        closedir(dir);
-    }
-    return false;
-}
-//checks if any of the indexes exist in the specified directory
-bool Response::checkDirFile(std::string &path, std::string const &index) {
-    std::vector<std::string> indexes = split(const_cast<std::string &>(index), ' ', false);
-
-    for (std::vector<std::string>::const_iterator it = indexes.begin(); it != indexes.end(); ++it) {
-        const std::string &indexName = *it;
-        if (fileExistsInDirectory(path, indexName)) {
-            path += indexName;
-            return true;
-        }
-    }
-    return false;
 }
 
 void Response::get_body_content(Client *cl, std::string url) {
@@ -337,38 +271,7 @@ void Response::handleDirectoryRequest(Client *cl, locations *var) {
 		std::string res = get_error_page("src/response_pages/403.html", 403);
 		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 	}
-   
-    //if (
-         //var ->autoindex == true && checkDirFile(url, "index.html")) 
-         //checkDirFile(url, "index"[0]))) 
-    //{
-       // this->setBodySize(url);
-    //} else {
-        // Set root directory to current directory and generate directory listing HTML
-       
-    //}
-    //toString("text/html", cl);  // final response headers and body
 }
-
-
-// bool Response::redirection()
-// {
-// }
-
-
-// std::string	Response::get_exetention(std::map<std::string, std::string> mime, std::string exe)
-// {
-// 	size_t	pos = exe.find_last_of(".");
-// 	if (pos != std::string::npos)
-// 		exe = exe.substr(pos);
-// 	for (std::map<std::string, std::string>::iterator _it = mime.begin(); _it != mime.end(); _it++)
-// 	{
-// 		if (_it->second == exe)
-// 			return (_it->first);
-// 	}
-// 	return ("application/octet-stream");
-// }
-
 
 void Response::auto_index(Client *client, std::string uri)
 {
@@ -409,8 +312,18 @@ void Response::auto_index(Client *client, std::string uri)
   send(client->get_connect_fd(), html.c_str(), strlen(html.c_str()), 0);
 }
 
+void Response::handle_redirection(Client *cl, locations *var) {
+	// check matched location
+	// if file request
+	// if directory
+}
+
 void Response::GET(Client *cl, locations *var)
 {
+	if (!var->redir_path.empty()) {
+		handle_redirection(cl, var);
+		return ;
+	}
   std::string url = final_url(cl);
   std::string res;
   if (isDirectory(url.c_str()))
@@ -421,16 +334,6 @@ void Response::GET(Client *cl, locations *var)
   {
     handleFileRequest(cl);
   }
-  if (this->_status_code >= BAD_REQUEST)
-  {
-    res = get_error_page("src/response_pages/400.html", 400);
-  }
-  else
-  {
-    this->to_string_get(cl, url);
-    // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
-  }
-  // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
 
