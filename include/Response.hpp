@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:00 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/08 11:30:10 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/23 18:07:41 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class Response {
     public:
         Cluster     *_cluster;
         std::string _header;
+				std::string _body;
         int         _status_code;
         std::string _http_version;
         std::string _content_type;
@@ -52,7 +53,7 @@ class Response {
         Response(Cluster *cluster);
         std::string getStatusMsg(int status);
         void toString(std::string const  &type, Client *cl);
-        std::string getContentType();
+        // std::string getContentType();
         ~Response(void);
         std::string get_error_page(std::string page, int code);
         void  bad_request(Client *cl);
@@ -70,7 +71,8 @@ class Response {
         bool isDirectory(const char *path);
         void removeDirectory(const char* path);
         void to_String_Delete( void );
-        void to_string_get(Client *cl);
+				void get_body_content(Client *cl, std::string url);
+        void to_string_get(Client *cl, std::string path);
         std::string final_url(Client *cl) ;
 
 

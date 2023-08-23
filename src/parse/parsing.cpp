@@ -191,7 +191,7 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
           srv.loc[ii].autoindex = true;
       }
       else if (!words[0].compare("index"))
-        srv.loc[ii].def_files.push_back(words[1]);
+        srv.loc[ii].def_files = words[1];
 
       else if (!words[0].compare("cgi")) {
         if (words.size() != 3 || words[1][0] != '.')
@@ -207,7 +207,6 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs, Config &srv
       return true;
     }
   }
-  std::cout << buff << std::endl;
   return false;
 }
 

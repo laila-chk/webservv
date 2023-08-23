@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:54 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/17 23:48:01 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/23 17:56:04 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ class Request {
     public:
         Request();
         ~Request();
-        std::string getContentType();
+        std::string getContentType(std::string path);
         void    get_request_header(SOCK_FD & _socket, bool & _done_recv);
         void    parse_request_header(bool & _done_recv);
 

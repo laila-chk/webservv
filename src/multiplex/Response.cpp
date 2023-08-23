@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/18 23:44:41 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/23 18:31:47 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static std::string _to_string(int n)
 
 // The purpose of this function is to determine the appropriate Content-Type
 // The code extracts the file extension from the _path variable of the Request class
-std::string Request::getContentType()
+std::string Request::getContentType(std::string path)
 {
   std::map<std::string, std::string> content;
   content["txt"] = "text/plain";
@@ -50,8 +50,8 @@ std::string Request::getContentType()
   content["webm"] = "video/webm";
   content["mp4"] = "video/mp4";
   content[""] = "application/octet-stream";
-  if (content.find(_start_line[1].substr(_start_line[1].find_last_of(".") + 1)) != content.end())
-    return content[_start_line[1].substr(_start_line[1].find_last_of(".") + 1)];
+  if (content.find(path.substr(path.find_last_of(".") + 1)) != content.end())
+    return content[path.substr(path.find_last_of(".") + 1)];
   else
     return content[""];
 }
@@ -100,8 +100,10 @@ void Response::toString(std::string const  &type, Client *cl)
 		this->_header += std::string("Connection: close") + "\r\n\r\n";
 		return ;
 	}
+	std::string url = final_url(cl);
+	setBodySize(url);
 	this->_header += "Content-Type: " + type + "\r\n";
-	//this->_header += "Content-Length: " + std::to_string(size of the response body ) + "\r\n";
+	this->_header += "Content-Length: " + std::to_string(_body_size) + "\r\n";
 	this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
 
@@ -174,7 +176,7 @@ bool Response::isDirectory(const char *path)
   return false;
 }
 
-void Response::to_string_get(Client *cl)
+void Response::to_string_get(Client *cl, std::string path)
 {
   this->_header += "HTTP/1.1 ";
   this->_header += _to_string(this->_status_code) + " " + getStatusMsg(this->_status_code) + "\r\n";
@@ -186,9 +188,11 @@ void Response::to_string_get(Client *cl)
     else
       this->_header += "Location: " + cl->get_location()->redir_path + "\r\n";
   }
+	std::string url = final_url(cl);
+	setBodySize(path);
   this->_header += std::string("Accept-Ranges: bytes") + "\r\n";
-  this->_header += "Content-Type: " + getContentType() + "\r\n";
-  // this->_header += "Content-Length: " + _to_string(size of the response body ) + "\r\n";
+  this->_header += "Content-Type: " + cl->get_req()->getContentType(path) + "\r\n";
+  this->_header += "Content-Length: " + _to_string(_body_size) + "\r\n";
   this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
 // main mathods
@@ -211,14 +215,23 @@ void Response::handleFileRequest(Client *cl)
   if (access(url.c_str(), F_OK) == -1)
   {
     this->_status_code = NOT_FOUND;
+		not_found(cl);
   }
   else if (access(url.c_str(), R_OK) == -1)
   {
     this->_status_code = FORBIDDEN;
+		std::string res = get_error_page("src/response_pages/403.html", 403);
+		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
   }
   else
   {
     this->setBodySize(url);
+		_status_code = 200;
+		to_string_get(cl, url);
+		get_body_content(cl, url);
+		// get body content
+		std::string res = _header + _body;
+		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
   }
 }
 //useful for processing lists of indexes or filenames
@@ -273,10 +286,54 @@ bool Response::checkDirFile(std::string &path, std::string const &index) {
     return false;
 }
 
+void Response::get_body_content(Client *cl, std::string url) {
+	(void)cl;
+	std::ifstream iss;
+	iss.open(url, std::ios::binary);
+
+ 	iss.seekg(0, std::ios::end);
+  std::streampos fileSize = iss.tellg();
+  iss.seekg(0, std::ios::beg);
+
+  // Create a string to hold the image content
+  std::string imageContent(fileSize, '\0');
+
+    // Read the image content into the string
+    iss.read(&imageContent[0], fileSize);
+
+    // Close the file
+  iss.close();
+	_body = imageContent;
+}
+
 //This code is handling a directory request
 // It checks whether the server should perform auto-indexing or serve a default index file
 void Response::handleDirectoryRequest(Client *cl, locations *var) {
     std::string url = final_url(cl);
+
+		if (!var->def_files.empty()) {
+		std::string path = url + var->def_files;
+
+			if (access(path.c_str(), F_OK) == -1) {
+    		this->_status_code = NOT_FOUND;
+				not_found(cl);
+  		} else if (access(path.c_str(), R_OK) == -1) {
+    		this->_status_code = FORBIDDEN;
+				std::string res = get_error_page("src/response_pages/403.html", 403);
+				send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);	
+  		} else {
+    		this->setBodySize(path);
+				_status_code = 200;
+			 	to_string_get(cl, path);	
+				get_body_content(cl, path);
+				std::string res = _header + _body;
+				send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+			}
+	}	else if (var->autoindex) {
+		auto_index(cl, url);
+	}	else {
+		not_found(cl);
+	}
    
     //if (
          //var ->autoindex == true && checkDirFile(url, "index.html")) 
@@ -366,24 +423,12 @@ void Response::GET(Client *cl, locations *var)
   }
   else
   {
-    this->to_string_get(cl);
+    this->to_string_get(cl, url);
     // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
   }
   // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }
 
-// void  Response::GET(Client *cl) {
-//   // url :
-//   // join root and pattern
-//   // file ()
-//   // directory
-//   // redirection : _start_lien[1] = value in return;
-//   std::string res("HTTP/1.1 200 OK\n\
-//   Content-Type: text/html\n\
-//   Content-Length: 20\n\n\
-//   <h1 style=\"font-size:5rem\">GET REQUEST</h1>");
-//   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
-// }
 
 void Response::POST(Client *cl)
 {
@@ -440,7 +485,6 @@ std::string Response::final_url(Client *cl)
   size_t patternLen = cl->get_location()->pattern.length();
   std::string last_url = cl->get_location()->root + "/" +
                          cl->get_req()->get_url().substr(cl->get_req()->get_url().find(cl->get_location()->pattern) + patternLen);
-  std::cout << last_url << std::endl;
   return last_url;
 }
 void Response::DELETE(Client *cl)
