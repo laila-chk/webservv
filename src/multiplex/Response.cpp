@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/23 18:31:47 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/23 18:54:56 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,6 +317,7 @@ void Response::handleDirectoryRequest(Client *cl, locations *var) {
 			if (access(path.c_str(), F_OK) == -1) {
     		this->_status_code = NOT_FOUND;
 				not_found(cl);
+				// auto_index(cl, url);
   		} else if (access(path.c_str(), R_OK) == -1) {
     		this->_status_code = FORBIDDEN;
 				std::string res = get_error_page("src/response_pages/403.html", 403);
@@ -332,7 +333,9 @@ void Response::handleDirectoryRequest(Client *cl, locations *var) {
 	}	else if (var->autoindex) {
 		auto_index(cl, url);
 	}	else {
-		not_found(cl);
+		this->_status_code = FORBIDDEN;
+		std::string res = get_error_page("src/response_pages/403.html", 403);
+		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 	}
    
     //if (
@@ -400,9 +403,10 @@ void Response::auto_index(Client *client, std::string uri)
     return;
   }
   html += "</body> </html>";
+
   std::string res = "HTTP/1.1 200\r\nConnection: close\r\nContent-Length: " + _to_string(html.length()) + "\r\nContent-Type: text/html\r\n\r\n";
   send(client->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
-  send(client->get_connect_fd(), html.c_str(), html.length(), 0);
+  send(client->get_connect_fd(), html.c_str(), strlen(html.c_str()), 0);
 }
 
 void Response::GET(Client *cl, locations *var)
