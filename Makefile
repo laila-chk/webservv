@@ -27,7 +27,6 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	@c++ $(CPPFLAGS) $^ -o $(NAME)
-	@mkdir -p upload
 	@echo -e $(GREEN) $(ITALIC) "Compiled ..." $(NONE)
 
 clean:
@@ -36,7 +35,6 @@ clean:
 
 fclean: clean
 	@rm -rf $(NAME)
-	@rm -fr upload
 	@echo -e $(GREEN) $(ITALIC) "Cleaned ..." $(NONE)
 
 re: fclean all

@@ -19,5 +19,8 @@
 - [x] Server creation
 - [x] Request parsing
 - [x] POST request uploading
-- [ ] error check
-- [ ] Response
+- [x] Response
+
+- [ ] Merge everything
+
+- [ ] Testing & handling

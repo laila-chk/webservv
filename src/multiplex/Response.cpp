@@ -6,18 +6,16 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/23 19:15:20 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/24 08:18:42 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include <cstring>
-Response::Response(Cluster *cluster) : _cluster(cluster)
-{
+Response::Response(Cluster *cluster) : _cluster(cluster) {
 }
 
-Response::~Response()
-{
+Response::~Response(){
 }
 
 // std::to_string alternative cuase it c++11 function
@@ -96,23 +94,18 @@ std::string Response::get_error_page(std::string page, int code)
   line += getStatusMsg(code) + "\n";
   std::string res("Content-Type: text/html\nContent-Length: ");
   res = line + res;
-  std::string content;
-  char buffer[2];
-  int fd = open(page.c_str(), O_RDONLY);
-  if (fd == FAIL)
-  {
+
+	std::ifstream iss;
+	iss.open(page.c_str());
+	if (!iss.is_open()) {
     std::cerr << "Cant open the file" << std::endl;
     throw System();
-  }
-  while (true)
-  {
-    int i = read(fd, buffer, 1);
-    if (i == FAIL)
-      throw System();
-    if (!i)
-      break;
-    content += std::string(buffer, i);
-  }
+	}
+
+  std::string content;
+	std::getline(iss, content, '\0');
+	iss.close();
+
   res += _to_string(content.length()) + "\n\n";
   res += content;
   return res;
@@ -177,10 +170,6 @@ void Response::to_string_get(Client *cl, std::string path)
   this->_header += "Content-Length: " + _to_string(_body_size) + "\r\n";
   this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
-// main mathods
-
-
-
 
 // this function calculates and
 // assigns the size of a file to the _body_size
@@ -211,7 +200,7 @@ void Response::handleFileRequest(Client *cl)
 		_status_code = 200;
 		to_string_get(cl, url);
 		// if normal file
-			get_body_content(cl, url);
+		get_body_content(url);
 		// else if CGI
 		//  call laila function
 		// get body content
@@ -220,8 +209,7 @@ void Response::handleFileRequest(Client *cl)
   }
 }
 
-void Response::get_body_content(Client *cl, std::string url) {
-	(void)cl;
+void Response::get_body_content(std::string url) {
 	std::ifstream iss;
 	iss.open(url, std::ios::binary);
 
@@ -229,15 +217,10 @@ void Response::get_body_content(Client *cl, std::string url) {
   std::streampos fileSize = iss.tellg();
   iss.seekg(0, std::ios::beg);
 
-  // Create a string to hold the image content
-  std::string imageContent(fileSize, '\0');
-
-    // Read the image content into the string
-    iss.read(&imageContent[0], fileSize);
-
-    // Close the file
+  std::string Content(fileSize, '\0');
+  iss.read(&Content[0], fileSize);
   iss.close();
-	_body = imageContent;
+	_body = Content;
 }
 
 //This code is handling a directory request
@@ -260,7 +243,7 @@ void Response::handleDirectoryRequest(Client *cl, locations *var) {
     		this->setBodySize(path);
 				_status_code = 200;
 			 	to_string_get(cl, path);	
-				get_body_content(cl, path);
+				get_body_content(path);
 				std::string res = _header + _body;
 				send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 			}
@@ -312,28 +295,21 @@ void Response::auto_index(Client *client, std::string uri)
   send(client->get_connect_fd(), html.c_str(), strlen(html.c_str()), 0);
 }
 
-void Response::handle_redirection(Client *cl, locations *var) {
-	// check matched location
-	// if file request
-	// if directory
-}
-
 void Response::GET(Client *cl, locations *var)
 {
 	if (!var->redir_path.empty()) {
-		handle_redirection(cl, var);
+		_status_code = 301;
+		to_string_get(cl, "src/response_pages/200.html"); // need to be 301 here
+		get_body_content("src/response_pages/200.html"); // same : 301.html
+		send(cl->get_connect_fd(), std::string(_header + _body).c_str(), strlen(std::string(_header + _body).c_str()), 0);
 		return ;
 	}
+
   std::string url = final_url(cl);
-  std::string res;
   if (isDirectory(url.c_str()))
-  {
     handleDirectoryRequest(cl, var);
-  }
   else
-  {
     handleFileRequest(cl);
-  }
 }
 
 
@@ -420,18 +396,4 @@ void Response::DELETE(Client *cl)
     this->to_String_Delete();
   res = get_error_page("src/response_pages/200.html", 200);
   send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
-  // std::string url = cl->get_location()->root + cl->get_req()->get_url();
-  // std::string res;
-
-  // if (!access(url.c_str(), F_OK)) {
-  //   if (!isDirectory(url.c_str())) {
-  // 		unlink(url.c_str());
-  //     res = get_error_page("src/response_pages/200.html", 200);
-  //   } else {
-  //     res = get_error_page("src/response_pages/403.html", 403);
-  //   }
-  // } else {
-  //   res = get_error_page("src/response_pages/404.html", 404);
-  // }
-  // send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
 }

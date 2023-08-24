@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:00 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/23 19:14:21 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/24 07:05:46 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ class Response {
         bool isDirectory(const char *path);
         void removeDirectory(const char* path);
         void to_String_Delete( void );
-				void get_body_content(Client *cl, std::string url);
+				void get_body_content(std::string url);
         void to_string_get(Client *cl, std::string path);
         std::string final_url(Client *cl);
 				void handle_redirection(Client *cl, locations *var);
