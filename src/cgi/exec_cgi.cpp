@@ -84,7 +84,7 @@ void parse_cgi_file(std::string filename, Response* res)
 }
 
 void cgi_exec(std::string path, Client *client) {
-  std::string filename ="cgi_buffer.html";
+  client->filename = rand_name() + ".html";
   if (!client->done_cgi())
   {
     client->set_done_cgi(true);
@@ -108,7 +108,7 @@ void cgi_exec(std::string path, Client *client) {
       args[2] = NULL;
       //creating an output file
       //    manually naming the file is pointless, there may be more than one script running at the same time
-      int file = open(filename.c_str(), O_CREAT | O_RDWR, 0777);
+      int file = open(client->filename.c_str(), O_CREAT | O_RDWR, 0777);
 
       client->pid = fork();
       if (client->pid < 0)
@@ -120,11 +120,10 @@ void cgi_exec(std::string path, Client *client) {
         execve(args[0], args, env);
       } else if (client->pid > 0) {
         // checks on timeouts should be added!!
-        waitpid(client->pid, &client->stats, WNOHANG);
       }
     }
-		client->stats = 0;
   }
+	client->stats = waitpid(client->pid, NULL, WNOHANG);
 
   //assuming that the child finished successefully:
   //Parsing the header of cgi:

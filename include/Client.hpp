@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/24 15:05:44 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/25 18:12:47 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ class Client {
         Request     *_req;
         Response    *_res;
 
+				std::string filename;
 				int pid;
 				int stats;
 };

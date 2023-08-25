@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/25 16:15:25 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/25 18:10:54 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,11 +201,12 @@ void Response::handleFileRequest(Client *cl)
 		to_string_get(cl, url);
 		get_body_content(url);
 		std::string res = _header + _body;
-		if (cl->done_cgi() && cl->stats == -1)
+		if (cl->done_cgi() && !cl->stats)
 			return;
-		if (cl->done_cgi()) {
+		if (cl->stats) {
 			_header = "";
-			to_string_get(cl, "cgi_buffer.html");
+			to_string_get(cl, cl->filename);
+			unlink(cl->filename.c_str());
 			res = _header + _body;
 		}
 		send(cl->get_connect_fd(), res.c_str(), res.size(), 0);
@@ -216,12 +217,11 @@ void Response::get_body_content(std::string url) {
 	std::string ex = url.substr(url.find_last_of(".") + 1);
 	if (ex == "php" || ex == "py") {
 		cgi_exec(url, _client);
-		if (_client->stats != -1) {
+		if (_client->stats) {
 			std::ifstream iss;
-			iss.open("cgi_buffer.html");
+			iss.open(_client->filename.c_str());
 			std::getline(iss, _body, '\0');
 			iss.close();
-			// unlink("cgi_buffer.html");
 		}
 		return;
 	}
@@ -261,7 +261,7 @@ void Response::handleDirectoryRequest(Client *cl, locations *var) {
 			 	to_string_get(cl, path);	
 				get_body_content(path);
 				std::string res = _header + _body;
-				if (cl->done_cgi() && cl->stats == -1)
+				if (cl->done_cgi() && !cl->stats)
 					return;
 				send(cl->get_connect_fd(), res.c_str(), res.size(), 0);
 			}

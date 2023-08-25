@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 20:19:04 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/24 14:08:14 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/25 18:11:21 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,5 @@ class Server {
 };
 
 void    Serv_block_init(std::vector<Config> &srvs, std::string path);
-void 		cgi_exec(std::string path, Client *client, int loc);
 
 #endif

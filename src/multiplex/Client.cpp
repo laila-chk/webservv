@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/25 15:47:52 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/25 17:28:40 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Client::Client(Cluster *cluster) : _cluster(cluster) {
     _req = new Request;
     _res = new Response(cluster, this);
     _matched = NULL;
-		stats = -1;
+		stats = 0;
 }
 
 // Destructor
@@ -161,6 +161,7 @@ void    Client::sending(void) {
     _res->DELETE(this);
   }
   _done_send = true;
-	if (_done_cgi && stats == -1)
-		_done_send = false; }
+	if (_done_cgi && !stats)
+		_done_send = false; 
+}
 
