@@ -1,0 +1,27 @@
+
+
+
+int main(int ac, char **av) 
+{
+  std::string path;
+
+  if (ac >= 3)
+    ft_perr("Error!\nusage: ./webserv [configuration file]\n");
+  else if (ac == 1)
+    path = "default.conf";
+  else if (ac == 2)
+    path = av[1];
+
+  std::vector<Config> servs;
+  Serv_block_init(servs, path);
+
+  // std::cout << "The length of serv: " << servs.size() << std::endl;
+  // std::cout << "The length of locs: " << servs[0].loc.size() << std::endl;
+  std::cout  << servs[0].address << std::endl;
+  std::cout << "we have stored in serv " << servs[0].server_name <<"." << std::endl;
+
+   for (std::map<int ,std::string>::iterator it=servs[0].error_pages.begin();it != servs[0].error_pages.end(); ++it)
+    std::cout << it->first << " => " << it->second << '\n';
+   for (std::map<std::string ,std::string>::iterator it=servs[0].loc[0].cgi.begin();it != servs[0].loc[0].cgi.end(); ++it)
+    std::cout << it->first << " => " << it->second << '\n';
+}
