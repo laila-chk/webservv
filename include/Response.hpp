@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:00 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/25 15:21:53 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/26 19:07:48 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,14 +55,17 @@ class Response {
 				std::string body;
 
         Response(Cluster *cluster, Client *client);
+				~Response(void);
+
         std::string getStatusMsg(int status);
-        ~Response(void);
         std::string get_error_page(std::string page, int code);
+
         void  bad_request(Client *cl);
         void  payload_too_large(Client *cl);
         void  not_found(Client *cl);
         void  method_not_allowed(Client *cl);
-        void GET(Client *cl, locations *var);
+
+        void	GET(Client *cl, locations *var);
         void  POST(Client *cl);
         void  DELETE(Client *cl);
 
@@ -72,17 +75,15 @@ class Response {
         void to_String_Delete( void );
 				void get_body_content(std::string url);
         void to_string_get(Client *cl, std::string path);
-        std::string final_url(Client *cl);
 				void handle_redirection(Client *cl, locations *var);
+
+				std::string final_url(Client *cl);
 
         void setBodySize(std::string &path);
         void handleFileRequest(Client *cl);
-        void handleDirectoryRequest(Client *cl, locations *var) ;
-        //std::string	get_exetention(std::map<std::string, std::string> mime, std::string exe);
+        void handleDirectoryRequest(Client *cl, locations *var);
+
         void	auto_index(Client *client, std::string uri);
-        std::vector<std::string> split(std::string &str, char delim, bool keepDelim);
-        bool  fileExistsInDirectory(std::string &path, const std::string &fileName);
-        bool checkDirFile(std::string &path, std::string const &index);
 };
 
 void cgi_exec(std::string path, Client *client);

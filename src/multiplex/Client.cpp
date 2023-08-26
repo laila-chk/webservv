@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/25 17:28:40 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/26 19:21:06 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,10 @@ Cluster *Client::get_cluster() {
 
 void Client::set_done_cgi(bool state) {
   _done_cgi = state ;
+}
+
+void Client::set_done_send(bool stat) {
+	_done_send = stat;
 }
 
 // Recive from the ready client

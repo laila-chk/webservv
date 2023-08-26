@@ -6,20 +6,20 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:11:22 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/05 11:59:23 by maamer           ###   ########.fr       */
+/*   Updated: 2023/08/26 19:12:44 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-// <================================ THIS IS WEBSERV ================================>
-
+// Constructor
 Server::Server(void) {
     _nfds = 0;
     FD_ZERO(&_readfds);
     FD_ZERO(&_writefds);
 }
 
+// Destructor
 Server::~Server(void) {
     std::vector<Cluster*>::iterator it;
     std::list<Client*>::iterator it1;
@@ -128,7 +128,7 @@ void Server::run(void) {
         // multiplexing
         set_fds();
         if (select(_nfds + 1, &_copy_readfds, &_copy_writefds, NULL, 0) == FAIL)
-            throw System();
+          continue;
         accept_connection();
         // request
         handle_requests();

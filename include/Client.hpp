@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/25 18:12:47 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/26 19:21:27 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,18 +43,19 @@ class Client {
         void    parse_header(void);
         void    recv_body(void);
 
-        void    get_matched_location(void);
-        locations *get_location();
+        void    	get_matched_location(void);
+        locations	*get_location();
+				Cluster		*get_cluster(void);
 
 				bool	done_cgi(void);
 				void	set_done_cgi(bool state);
-				Cluster *get_cluster(void);
+				void 	set_done_send(bool stat);
 
         Request     *_req;
         Response    *_res;
 
 				std::string filename;
-				int pid;
-				int stats;
+				int 				pid;
+				int 				stats;
 };
 #endif

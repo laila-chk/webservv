@@ -41,7 +41,7 @@ bool is_num(std::string str) {
   return true;
 }
 
-// added by moad
+// _stoi
 static int _stoi(std::string str) {
   std::istringstream iss(str);
   int nbr;
@@ -209,7 +209,7 @@ void check_Configs(std::vector<Config> &srvs) {
       if (!srvs[i].loc[j].pattern.compare(""))
         ft_perr("Error: pattern in location is required!");
       if (!srvs[i].loc[j].def_files.size())
-        srvs[i].loc[j].def_files.push_back("index.html");
+        srvs[i].loc[j].def_files.push_back("");
     }
   }
 }

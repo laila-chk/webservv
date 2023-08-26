@@ -53,10 +53,10 @@ void cgi_exec(std::string path, Client *client) {
       else if (client->pid == 0) {
         dup2(file, 1);
         execve(args[0], args, env);
-      } else if (client->pid > 0) {
-	client->stats = waitpid(client->pid, NULL, WNOHANG);
+				exit(1);
       }
     }
   }
+	client->stats = waitpid(client->pid, NULL, WNOHANG);
 }
 

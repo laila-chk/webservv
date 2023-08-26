@@ -6,19 +6,21 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/25 18:10:54 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/26 20:07:47 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
+// Constrcutor
 Response::Response(Cluster *cluster, Client *client) : _cluster(cluster), _client(client) {
 }
 
+// Destructor
 Response::~Response(){
 }
 
-// std::to_string alternative cuase it c++11 function
+// _to_string
 static std::string _to_string(int n)
 {
   std::ostringstream oss;
@@ -114,25 +116,33 @@ std::string Response::get_error_page(std::string page, int code)
 void Response::bad_request(Client *cl)
 {
   std::string res = get_error_page("src/response_pages/400.html", 400);
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+  int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	if (i == FAIL || !i)
+		cl->set_done_send(true);
 }
 
 void Response::payload_too_large(Client *cl)
 {
   std::string res = get_error_page("src/response_pages/413.html", 413);
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+  int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	if (i == FAIL || !i)
+		cl->set_done_send(true);
 }
 
 void Response::not_found(Client *cl)
 {
   std::string res = get_error_page("src/response_pages/404.html", 404);
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+  int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	if (i == FAIL || !i)
+		cl->set_done_send(true);
 }
 
 void Response::method_not_allowed(Client *cl)
 {
   std::string res = get_error_page("src/response_pages/405.html", 405);
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+  int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	if (i == FAIL || !i)
+		cl->set_done_send(true);
 }
 
 bool Response::file_exists(const char *path)
@@ -163,7 +173,6 @@ void Response::to_string_get(Client *cl, std::string path)
     else
       this->_header += "Location: " + cl->get_location()->redir_path + "\r\n";
   }
-	// std::string url = final_url(cl);
 	setBodySize(path);
   this->_header += std::string("Accept-Ranges: bytes") + "\r\n";
   this->_header += "Content-Type: " + cl->_req->getContentType(path) + "\r\n";
@@ -192,10 +201,13 @@ void Response::handleFileRequest(Client *cl)
   {
     this->_status_code = FORBIDDEN;
 		std::string res = get_error_page("src/response_pages/403.html", 403);
-		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+		int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+		if (i == FAIL || !i)
+			cl->set_done_send(true);
   }
   else
   {
+
     this->setBodySize(url);
 		_status_code = 200;
 		to_string_get(cl, url);
@@ -209,13 +221,16 @@ void Response::handleFileRequest(Client *cl)
 			unlink(cl->filename.c_str());
 			res = _header + _body;
 		}
-		send(cl->get_connect_fd(), res.c_str(), res.size(), 0);
+		int i = send(cl->get_connect_fd(), res.c_str(), res.size(), 0);
+		if (i == FAIL || !i)
+			cl->set_done_send(true);
   }
 }
 
 void Response::get_body_content(std::string url) {
 	std::string ex = url.substr(url.find_last_of(".") + 1);
 	if (ex == "php" || ex == "py") {
+		std::cout << "++++++++++++++++++++++++++++++++ " << std::endl;
 		cgi_exec(url, _client);
 		if (_client->stats) {
 			std::ifstream iss;
@@ -244,7 +259,7 @@ void Response::get_body_content(std::string url) {
 void Response::handleDirectoryRequest(Client *cl, locations *var) {
     std::string url = final_url(cl);
 
-		if (!var->def_files.empty()) {
+		if (!var->def_files[0].empty()) {
 		std::string path = url + var->def_files[0];
 
 			if (access(path.c_str(), F_OK) == -1) {
@@ -254,7 +269,9 @@ void Response::handleDirectoryRequest(Client *cl, locations *var) {
   		} else if (access(path.c_str(), R_OK) == -1) {
     		this->_status_code = FORBIDDEN;
 				std::string res = get_error_page("src/response_pages/403.html", 403);
-				send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);	
+				int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);	
+				if (i == FAIL || !i)
+					cl->set_done_send(true);
   		} else {
     		this->setBodySize(path);
 				_status_code = 200;
@@ -263,14 +280,18 @@ void Response::handleDirectoryRequest(Client *cl, locations *var) {
 				std::string res = _header + _body;
 				if (cl->done_cgi() && !cl->stats)
 					return;
-				send(cl->get_connect_fd(), res.c_str(), res.size(), 0);
+				int i = send(cl->get_connect_fd(), res.c_str(), res.size(), 0);
+				if (i == FAIL || !i)
+					cl->set_done_send(true);
 			}
 	}	else if (var->autoindex) {
 		auto_index(cl, url);
 	}	else {
 		this->_status_code = FORBIDDEN;
 		std::string res = get_error_page("src/response_pages/403.html", 403);
-		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+		int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+		if (i == FAIL || !i)
+			cl->set_done_send(true);
 	}
 }
 
@@ -309,8 +330,14 @@ void Response::auto_index(Client *client, std::string uri)
   html += "</body> </html>";
 
   std::string res = "HTTP/1.1 200\r\nConnection: close\r\nContent-Length: " + _to_string(html.length()) + "\r\nContent-Type: text/html\r\n\r\n";
-  send(client->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
-  send(client->get_connect_fd(), html.c_str(), strlen(html.c_str()), 0);
+  int i = send(client->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	if (i == FAIL || !i) {
+		client->set_done_send(true);
+		return;
+	}
+  i = send(client->get_connect_fd(), html.c_str(), strlen(html.c_str()), 0);
+	if (i == FAIL || !i)
+		client->set_done_send(true);
 }
 
 void Response::GET(Client *cl, locations *var)
@@ -318,7 +345,9 @@ void Response::GET(Client *cl, locations *var)
 	if (!var->redir_path.empty()) {
 		_status_code = 301;
 		std::string res = get_error_page("src/response_pages/301.html", 301);
-		send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+		int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+		if (i == FAIL || !i)
+			cl->set_done_send(true);
 		return ;
 	}
 
@@ -332,7 +361,9 @@ void Response::GET(Client *cl, locations *var)
 void Response::POST(Client *cl)
 {
   std::string res = get_error_page("src/response_pages/201.html", 201);
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+  int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	if (i == FAIL || !i)
+		cl->set_done_send(true);
 }
 
 void Response::removeDirectory(const char *path)
@@ -412,5 +443,7 @@ void Response::DELETE(Client *cl)
   else
     this->to_String_Delete();
   res = get_error_page("src/response_pages/200.html", 200);
-  send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+  int i = send(cl->get_connect_fd(), res.c_str(), strlen(res.c_str()), 0);
+	if (i == FAIL || !i)
+		cl->set_done_send(true);
 }

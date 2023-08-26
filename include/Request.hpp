@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:54 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/24 14:57:20 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/26 19:05:32 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,9 @@
 
 class Request {
     private:
+				std::vector<std::string>            _start_line;
         std::map<std::string, std::string>  _req_header;
-        std::vector<std::string>            _start_line;
+
         std::string       _query;
         std::string       _recv_buffer;
         size_t            _buffer_size;
@@ -35,7 +36,9 @@ class Request {
     public:
         Request();
         ~Request();
+
         std::string getContentType(std::string path);
+
         void    get_request_header(SOCK_FD & _socket, bool & _done_recv);
         void    parse_request_header(bool & _done_recv);
 
@@ -47,7 +50,9 @@ class Request {
 				std::string getContentLength(void);
 				std::string get_query(void);
 				std::string get_protocol(void);
+
         std::map<std::string, std::string> get_req_header(void);
+
         bool        recieve_header(void);
         bool        is_bad_request(void);
         bool        is_payload_too_large(void);

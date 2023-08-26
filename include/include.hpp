@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/24 09:25:47 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/24 14:39:54 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/26 19:04:21 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h> 
+#include <dirent.h>
 
 #include <fstream>
 #include <iostream>
@@ -34,20 +35,20 @@
 #include <list>
 #include <vector>
 #include <map>
-#include <dirent.h>
+
 // Macros
 #define FAIL -1
-#define SIZE 3072
+#define SIZE 4096
 
 // Typedefs
-typedef int SOCK_FD; // socket file descriptor
+typedef int SOCK_FD;
 
 // Exceptions
 class System : public std::exception {
-    public:
-        virtual const char* what() const throw() {
-            return "System call function failed.";
-        }
+  public:
+    virtual const char* what() const throw() {
+      return "System call function failed.";
+    }
 };
 
 #endif
