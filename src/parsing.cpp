@@ -4,7 +4,7 @@ Config::Config() {
   server_name = "Webserv";
   client_max_body_size = 10000;
 
-	std::string dir = "defauld.d/response_pages/";
+	std::string dir = "default.d/response_pages/";
   error_pages[200] = dir + "200.html";
   error_pages[201] = dir + "201.html";
   error_pages[204] = dir + "204.html";
