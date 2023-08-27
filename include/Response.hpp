@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:00 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/26 19:07:48 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/27 15:35:28 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ class Response {
 				std::string final_url(Client *cl);
 
         void setBodySize(std::string &path);
-        void handleFileRequest(Client *cl);
+        void handleFileRequest(Client *cl, std::string url);
         void handleDirectoryRequest(Client *cl, locations *var);
 
         void	auto_index(Client *client, std::string uri);

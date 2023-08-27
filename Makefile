@@ -1,5 +1,5 @@
 NAME = webserv
-INC = -I include -I src/parse
+INC = -I include
 SANITIZE = -fsanitize=address -g3
 
 NONE = '\033[0m'
@@ -9,14 +9,14 @@ ITALIC = '\033[3m'
 
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 $(INC) $(SANITIZE)
 
-SRC = src/multiplex/webserv.cpp\
-	src/multiplex/Server.cpp\
-	src/multiplex/Cluster.cpp\
-	src/multiplex/Client.cpp\
-	src/multiplex/Request.cpp\
-	src/multiplex/Response.cpp\
-	src/parse/parsing.cpp\
-	src/cgi/exec_cgi.cpp
+SRC = src/webserv.cpp\
+	src/Server.cpp\
+	src/Cluster.cpp\
+	src/Client.cpp\
+	src/Request.cpp\
+	src/Response.cpp\
+	src/parsing.cpp\
+	src/exec_cgi.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
