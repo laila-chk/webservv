@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:11:22 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/27 16:56:37 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/27 18:59:14 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ void Server::accept_connection() {
             _clients.push_back(client);
             FD_SET(client->get_connect_fd(), &_readfds);
             FD_SET(client->get_connect_fd(), &_writefds);
-            std::cout << "New client connected" << std::endl;
         }
     }
 }

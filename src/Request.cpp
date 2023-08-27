@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/27 14:22:00 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/27 19:24:30 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -163,10 +163,9 @@ std::string get_extention(std::string content) {
 		suffix = suffix.substr(0, suffix.length() -1);
 	if (content.find("application/octet-stream") != std::string::npos)
 		return "";
-	else if (content.find("text/plain") != std::string::npos)
+	if (content.find("text/plain") != std::string::npos)
 		suffix = "txt";
-	std::cout << content << std::endl;
-	return suffix + ".";
+	return "." + suffix;
 }
 
 static bool is_directory(std::string path) {

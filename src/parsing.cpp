@@ -162,7 +162,7 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs,
       } else if (!words[0].compare("root")) {
         if (words.size() != 2)
           ft_perr("Error! Bad root format!");
-        srv.loc[ii].root = words[1];
+        srv.loc[ii].root = "./" + words[1];
       } else if (!words[0].compare("autoindex")) {
         if (words.size() != 2 ||
             (words[1].compare("on") && words[1].compare("off")))

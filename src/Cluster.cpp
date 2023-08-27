@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 20:42:14 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/01 14:57:15 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/27 18:33:56 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ Cluster::Cluster(Config _conf) : _config(_conf) {
         close(_socket_fd);
         throw System();
     }
-    std::cout << "Server " << _config.server_name <<  " listning on port " << _config.port << std::endl;
+    std::cout << "Server " << _config.server_name <<  " listning on " << _config.address << ":" << _config.port << std::endl;
 }
 
 Cluster::~Cluster(void) {
