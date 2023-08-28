@@ -251,6 +251,7 @@ void Serv_block_init(std::vector<Config> &srvs, std::string path) {
       if (!buff.compare("server") && !inSer) {
         srvs.push_back(Config());
 
+				ii=0;
         getline(file, buff);
         buff.erase(std::remove_if(buff.begin(), buff.end(), isspace),
                    buff.end());

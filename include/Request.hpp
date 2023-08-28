@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:54 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/26 19:05:32 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/28 15:33:12 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ class Request {
         void        method_is_not_allowed(bool stat);
         void        payload_is_too_large(bool stat);
 				void				transfer_encoding(SOCK_FD & _socket, bool & _done_recv, std::string path);
+				void				multipart(SOCK_FD & _socket, bool & _done_recv,
+											std::string path, std::map<std::string, std::string> _req_header);
 };
 
 std::string rand_name(void);

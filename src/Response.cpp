@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/27 19:32:52 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/28 22:04:01 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -390,7 +390,7 @@ std::string Response::final_url(Client *cl)
   size_t patternLen = cl->get_location()->pattern.length();
   std::string last_url = cl->get_location()->root + "/" +
                          cl->_req->get_url().substr(cl->_req->get_url().find(cl->get_location()->pattern) + patternLen);
-  return last_url;
+	return last_url;
 }
 
 void Response::DELETE(Client *cl)

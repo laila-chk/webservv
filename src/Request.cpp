@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:12:45 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/27 19:24:30 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/28 20:14:16 by mtellami         ###   ########.fr       */
 /*   Updated: 2023/08/05 13:48:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -246,6 +246,70 @@ void	Request::transfer_encoding(SOCK_FD & _socket, bool & _done_recv, std::strin
 	}
 }
 
+void	Request::multipart(SOCK_FD & _socket, bool & _done_recv,
+												std::string path, std::map<std::string, std::string> _req_header) {
+	std::string content = _req_header.find("Content-Type")->second;
+	std::string boundary = content.substr(content.find("boundary=") + 9);
+	int i = 0;
+	while (true) {
+		i = recv(_socket, _buffer, 1, 0);
+		if (i == FAIL || !i) {
+			_done_recv = true;
+			return;
+		}
+		_recv_buffer += std::string(_buffer, i);
+		if (_recv_buffer.find("--" + boundary + "--") != std::string::npos) {
+			_done_recv = true;
+			return;
+		}
+		if (_recv_buffer.find("Content-Type") != std::string::npos && _buffer[0] == '\n')
+			break;
+	}
+ 	std::string type = _recv_buffer.substr(_recv_buffer.find_last_of(": ") + 2);
+	if (_recv_buffer.find_last_of("filename=") != std::string::npos) {
+		std::string _ = _recv_buffer.substr(_recv_buffer.find("filename=") + 10);
+		_filename += _.substr(0, _.find("\""));
+	} else {
+		_filename = rand_name() + type.substr(type.find_last_of("/") + 1);
+		_filename = _filename.substr(0, _filename.length() - 1);
+	}
+	_recv_buffer = "";
+	i = recv(_socket, _buffer, 2, 0);
+	if (i == FAIL || !i) {
+		_done_recv = true;
+		return ;
+	}
+	while (_recv_buffer.find("--" + boundary) == std::string::npos) {
+		i = recv(_socket, _buffer, 1, 0);
+		if (i == FAIL || !i) {
+			_done_recv = true;
+			return;
+		}
+		_recv_buffer += std::string(_buffer, i);
+	}
+	size_t pos = _recv_buffer.find_last_of("--" + boundary) - boundary.length() - 3;
+	_recv_buffer = _recv_buffer.substr(0, pos);
+  std::ofstream out;
+	if (!is_directory(path)) {
+    _not_found = true;
+    _done_recv = true;
+    return ;
+  }
+  path += _filename;
+
+	out.open(path.c_str(), std::ios::binary | std::ios::app);
+  out << _recv_buffer;
+  out.close();
+  _done_recv = true;
+}
+
+bool is_multipart(std::map<std::string, std::string> _req_header) {
+	if (_req_header.find("Content-Type") != _req_header.end() &&
+			_req_header.find("Content-Type")->second.find("multipart") != std::string::npos)
+		return true;
+	return false;
+}
+
 // get the client request body by chunks
 void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path) {
     if (_done_recv)
@@ -254,6 +318,10 @@ void Request::get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string
 		if (is_chunked_encoded(_req_header)) {
 			transfer_encoding(_socket, _done_recv, path);
 			return;
+		}
+		if (is_multipart(_req_header)) {
+			multipart(_socket, _done_recv, path, _req_header);
+			return ;
 		}
     if (_filename == "")
         _filename = rand_name();
