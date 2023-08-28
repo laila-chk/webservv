@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/26 19:21:06 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/28 23:53:59 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ void    Client::recieve(void) {
       if (it == _matched->methods.end()) {
         _req->method_is_not_allowed(true);
         _done_recv = true;
+				return ;
       }
       if (_req->get_method() == "POST" && _stoi(_req->get_req_header().find("Content-Length")->second) \
         > _cluster->get_config().client_max_body_size) {

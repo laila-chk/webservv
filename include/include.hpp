@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/24 09:25:47 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/26 19:04:21 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/28 22:24:50 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,10 @@
 #include <iostream>
 #include <sstream>
 #include <filesystem>
+
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
 
 #include <cstring>
 #include <string>

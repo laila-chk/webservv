@@ -170,7 +170,7 @@ bool directive(std::string buff, std::vector<std::string> serv_dirs,
         srv.loc[ii].autoindex = false;
         if (!words[1].compare("on"))
           srv.loc[ii].autoindex = true;
-      } else if (!words[0].compare("index"))
+      } else if (!words[0].compare("index")) 
         srv.loc[ii].def_files.push_back(words[1]);
 
       else if (!words[0].compare("cgi")) {
@@ -208,13 +208,32 @@ void dirs(std::vector<std::string> &serv_dirs) {
 
 void check_Configs(std::vector<Config> &srvs) {
   for (size_t i = 0; i < srvs.size(); i++) {
+		for (size_t k = i + 1; k < srvs.size(); k++) {
+			if (srvs[i].address == srvs[k].address && srvs[i].port == srvs[k].port)
+				ft_perr("Error: duplicated address and port!");
+		}
     if (!srvs[i].loc.size())
       ft_perr("Error: missing location context in server context!");
+		for (std::map<int, std::string>::iterator it = srvs[i].error_pages.begin(); it != srvs[i].error_pages.end(); it++) {
+			if (it->first < 100 || it->first > 600)
+				ft_perr("Error: invalid error page code!");
+			if (access(it->second.c_str(), R_OK))
+				ft_perr("Error: can't access error page!");
+		}
     for (size_t j = 0; j < srvs[i].loc.size(); j++) {
       if (!srvs[i].loc[j].pattern.compare(""))
         ft_perr("Error: pattern in location is required!");
       if (!srvs[i].loc[j].def_files.size())
         srvs[i].loc[j].def_files.push_back("");
+			for (std::vector<std::string>::iterator it = srvs[i].loc[j].methods.begin();
+					it != srvs[i].loc[j].methods.end(); it++) {
+				if (*it != "GET" && *it != "POST" && *it != "DELETE")
+					ft_perr("Error: unknown method!");
+			}
+			for (std::map<std::string, std::string>::iterator it = srvs[i].loc[j].cgi.begin(); it!= srvs[i].loc[j].cgi.end(); it++) {
+				if (access(it->second.c_str(), X_OK))
+					ft_perr("Error: can't execute cgi bin");
+			}
     }
   }
 }
