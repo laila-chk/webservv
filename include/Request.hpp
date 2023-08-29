@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:54 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/28 15:33:12 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/29 15:30:30 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Request {
 				void				transfer_encoding(SOCK_FD & _socket, bool & _done_recv, std::string path);
 				void				multipart(SOCK_FD & _socket, bool & _done_recv,
 											std::string path, std::map<std::string, std::string> _req_header);
+				void				set_cookies(std::map<std::string, std::string> _req_header);
 };
 
 std::string rand_name(void);

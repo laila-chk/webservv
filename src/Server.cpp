@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:11:22 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/27 18:59:14 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/29 17:52:56 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,31 +21,36 @@ Server::Server(void) {
 
 // Destructor
 Server::~Server(void) {
-    std::vector<Cluster*>::iterator it;
-    std::list<Client*>::iterator it1;
+  std::vector<Cluster*>::iterator it;
+  std::list<Client*>::iterator it1;
+	unlink("default.d/cookies");
 
-    for (it = _clusters.begin(); it != _clusters.end(); it++)
-        delete *it;
-    for (it1 = _clients.begin(); it1 != _clients.end(); it1++)
-        delete *it1;
+  for (it = _clusters.begin(); it != _clusters.end(); it++)
+      delete *it;
+  for (it1 = _clients.begin(); it1 != _clients.end(); it1++)
+      delete *it1;
+
 }
 
 // Initialize Server blocks and set listening sockets
 void Server::init(char *filename) {
-    std::string                     path("default.d/default.conf");
-    std::vector<Config>             configs;
-    int		                         	fd;
+  std::string                     path("default.d/default.conf");
+  std::vector<Config>             configs;
+  int		                         	fd;
 
-		path = (filename) ? std::string(filename) : path;
-    Serv_block_init(configs, path);
-    for (std::vector<Config>::iterator it = configs.begin(); it != configs.end(); it++) {
-        _clusters.push_back(new Cluster(*it));
-    }
-    for (std::vector<Cluster*>::iterator _it = _clusters.begin(); _it != _clusters.end(); _it++) {
-        fd = (*_it)->get_listen_fd();
-        _nfds = (_nfds < fd) ? fd : _nfds;
-        FD_SET(fd, &_readfds);
-    }
+	path = (filename) ? std::string(filename) : path;
+  Serv_block_init(configs, path);
+  for (std::vector<Config>::iterator it = configs.begin(); it != configs.end(); it++) {
+      _clusters.push_back(new Cluster(*it));
+  }
+  for (std::vector<Cluster*>::iterator _it = _clusters.begin(); _it != _clusters.end(); _it++) {
+      fd = (*_it)->get_listen_fd();
+      _nfds = (_nfds < fd) ? fd : _nfds;
+      FD_SET(fd, &_readfds);
+  }
+	std::ofstream fs;
+	fs.open("default.d/cookies");
+	fs.close();
 }
 
 // Set Sockets file descriptor for SELECT

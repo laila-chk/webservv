@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/29 00:32:27 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/29 18:40:13 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,6 +161,17 @@ bool Response::isDirectory(const char *path)
   return false;
 }
 
+std::string set_cookies() {
+	std::string cookie = rand_name();
+
+	std::fstream fs;
+	fs.open("default.d/cookies", std::ios::app);
+	fs << cookie << "\n";
+	fs.close();
+
+	return cookie;
+}
+
 void Response::to_string_get(Client *cl, std::string path)
 {
   this->_header += "HTTP/1.1 ";
@@ -177,6 +188,7 @@ void Response::to_string_get(Client *cl, std::string path)
   this->_header += std::string("Accept-Ranges: bytes") + "\r\n";
   this->_header += "Content-Type: " + cl->_req->getContentType(path) + "\r\n";
   this->_header += "Content-Length: " + _to_string(_body_size) + "\r\n";
+	this->_header += "Set-Cookies: " + set_cookies() + "\r\n";
   this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
 

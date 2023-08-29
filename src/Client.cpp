@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/28 23:53:59 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/29 16:14:50 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,33 +70,35 @@ void Client::set_done_send(bool stat) {
 
 // Recive from the ready client
 void    Client::recieve(void) {
-    if (_done_recv)
-        return ;
+  if (_done_recv)
+      return ;
   if (!_req->recieve_header()) {
-      _req->get_request_header(_socket, _done_recv);
-      get_matched_location();
-      if (!_matched) {
-        _done_recv = true;
-        return;
-      }
-      std::vector<std::string>::iterator it;
-      for (it = _matched->methods.begin(); it != _matched->methods.end(); it++) {
-        if (*it == _req->get_method())
-          break;
-      }
-      if (it == _matched->methods.end()) {
-        _req->method_is_not_allowed(true);
-        _done_recv = true;
-				return ;
-      }
-      if (_req->get_method() == "POST" && _stoi(_req->get_req_header().find("Content-Length")->second) \
-        > _cluster->get_config().client_max_body_size) {
-        _req->payload_is_too_large(true);
-        _done_recv = true;
-      }
-    } else {
-      _req->get_request_body(_socket, _done_recv, _matched->root + _req->get_url());
+    _req->get_request_header(_socket, _done_recv);
+		// if (_done_recv)
+			// return;
+    get_matched_location();
+    if (!_matched) {
+      _done_recv = true;
+      return;
     }
+    std::vector<std::string>::iterator it;
+    for (it = _matched->methods.begin(); it != _matched->methods.end(); it++) {
+      if (*it == _req->get_method())
+        break;
+    }
+    if (it == _matched->methods.end()) {
+      _req->method_is_not_allowed(true);
+      _done_recv = true;
+			return ;
+    }
+    if (_req->get_method() == "POST" && _stoi(_req->get_req_header().find("Content-Length")->second) \
+      > _cluster->get_config().client_max_body_size) {
+      _req->payload_is_too_large(true);
+      _done_recv = true;
+    }
+  } else {
+    _req->get_request_body(_socket, _done_recv, _matched->root + _req->get_url());
+  }
 }
 
 // set the mathced location
@@ -130,7 +132,6 @@ void  Client::get_matched_location() {
 void    Client::sending(void) {
   if (!_done_recv || _done_send)
       return;
-  // this kindaa hardcode i'll change it latter
   if (_req->is_bad_request()) {
     _res->bad_request(this);
     _done_send = true;
