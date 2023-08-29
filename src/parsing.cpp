@@ -257,7 +257,7 @@ void Serv_block_init(std::vector<Config> &srvs, std::string path) {
   while (getline(file, buff)) {
     if (buff.length()) {
       buff.erase(0, buff.find_first_not_of(" \t"));
-      if (buff[0] == '#')
+      if (!buff.size() || buff[0] == '#')
         continue;
       j = buff.length() - 1;
       while (j > 0 && (buff[j] == ' ' || buff[j] == '\t'))

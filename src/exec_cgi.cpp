@@ -5,15 +5,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-char **init_env(Request* req, std::string path) {
+char **init_env(Client* cl, std::string path) {
   std::vector<std::string> env_vars;
-  if (req->getContentLength().compare("")) 
-    env_vars.push_back("CONTENT_LENGTH=" + req->getContentLength());
-  if (req->get_query().compare(""))
-    env_vars.push_back("QUERY_STRING=" + req->get_query());
-  env_vars.push_back("REQUEST_METHOD=" + req->get_method());
-  env_vars.push_back("SERVER_PROTOCOL=" + req->get_protocol());
+  env_vars.push_back("CONTENT_LENGTH="+ cl->_req->getContentLength());
+  env_vars.push_back("QUERY_STRING=" + cl->_req->get_query());
+  env_vars.push_back("REQUEST_METHOD=" + cl->_req->get_method());
   env_vars.push_back("PATH_INFO=" + path);
+  env_vars.push_back("SCRIPT_FILENAME=" + path);
+  env_vars.push_back("REDIRECT_STATUS=200");
 
   char **env = new char *[env_vars.size() + 1];
   for (size_t i = 0; i < env_vars.size(); i++) {
@@ -34,7 +33,7 @@ void cgi_exec(std::string path, Client *client) {
     while (pos < path.length() && path[pos] != '/')
       pos++;
     std::string full_path(path, 0, pos);
-    char **env = init_env(client->_req, full_path);
+    char **env = init_env(client, full_path);
     pos = full_path.find_last_of(".");
     std::string key(full_path, pos + 1, full_path.length() - pos);
 
@@ -48,6 +47,8 @@ void cgi_exec(std::string path, Client *client) {
       int file = open(client->filename.c_str(), O_CREAT | O_RDWR, 0777);
 
       client->pid = fork();
+      for (int i=0;env[i]; i++)
+        std::cout << "|" << env[i] << "|" << std::endl;
       if (client->pid < 0)
         std::cerr << "fork() failed!" << std::endl;
       else if (client->pid == 0) {

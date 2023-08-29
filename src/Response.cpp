@@ -205,6 +205,7 @@ void Response::handleFileRequest(Client *cl, std::string url)
 {
   if (access(url.c_str(), F_OK) == -1)
   {
+    std::cout << url << std::endl;
     this->_status_code = NOT_FOUND;
 		not_found(cl);
   }
