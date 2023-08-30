@@ -24,10 +24,10 @@ all: $(NAME)
 
 %.o: %.cpp
 	@echo $(GRAY) $(ITALIC) "Making .. $< " $(NONE)
-	@c++ $(CPPFLAGS) -c $< -o $@
+	@g++-11 $(CPPFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ)
-	@c++ $(CPPFLAGS) $^ -o $(NAME)
+	@g++-11 $(CPPFLAGS) $^ -o $(NAME)
 	@echo $(GREEN) $(ITALIC) "Compiled ..." $(NONE)
 
 clean:

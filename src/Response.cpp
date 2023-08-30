@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/30 15:59:53 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/30 22:10:03 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ void Response::to_string_get(Client *cl, std::string path)
   this->_header += "Content-Type: " + cl->_req->getContentType(path) + "\r\n";
   this->_header += "Content-Length: " + _to_string(_body_size) + "\r\n";
 	std::string cookie = set_cookies();
-	if (cookie != "")
+//	if (cookie != "")
 		this->_header += "Set-Cookies: " + cookie + "\r\n";
   this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
@@ -258,11 +258,9 @@ void parse_cgi_file(std::string filename) {
 	std::getline(iss, buffer, '\0');
 	iss.close();
 
-	std::cout << "BEFORE: \n" << buffer << std::endl << std::endl;
-
-	buffer = buffer.substr(buffer.find("<!DOCTYPE"));
-
-	std::cout << "AFTER: \n" << buffer << std::endl << std::endl;
+	size_t pos = buffer.find("<!DOCTYPE");
+	if (pos != std::string::npos)
+		buffer = buffer.substr(pos);
 
 	std::ofstream oss;
 	oss.open(filename.c_str(), std::ios::trunc);
