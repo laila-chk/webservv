@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:11:22 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/29 17:52:56 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/30 12:47:52 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Server::Server(void) {
 Server::~Server(void) {
   std::vector<Cluster*>::iterator it;
   std::list<Client*>::iterator it1;
-	unlink("default.d/cookies");
+	// unlink("default.d/cookies");
 
   for (it = _clusters.begin(); it != _clusters.end(); it++)
       delete *it;

@@ -24,9 +24,9 @@ char **init_env(Client* cl, std::string path) {
 }
 
 void cgi_exec(std::string path, Client *client) {
-  client->filename = rand_name() + ".html";
   if (!client->done_cgi())
   {
+		client->filename = rand_name() + ".html";
     client->set_done_cgi(true);
     std::map<std::string, std::string> cgi(client->get_location()->cgi);
     size_t pos = path.find_last_of(".");
@@ -47,15 +47,15 @@ void cgi_exec(std::string path, Client *client) {
       int file = open(client->filename.c_str(), O_CREAT | O_RDWR, 0777);
 
       client->pid = fork();
-      for (int i=0;env[i]; i++)
-        std::cout << "|" << env[i] << "|" << std::endl;
       if (client->pid < 0)
         std::cerr << "fork() failed!" << std::endl;
       else if (client->pid == 0) {
         dup2(file, 1);
+				close(file);
         execve(args[0], args, env);
 				exit(1);
       }
+			close(file);
     }
   }
 	client->stats = waitpid(client->pid, NULL, WNOHANG);

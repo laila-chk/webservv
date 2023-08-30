@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/29 18:40:13 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/30 15:59:53 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,17 @@ bool Response::isDirectory(const char *path)
 std::string set_cookies() {
 	std::string cookie = rand_name();
 
+	std::ifstream iss;
+	iss.open("default.d/cookies");
+	std::string buffer;
+	while (std::getline(iss, buffer)) {
+		if (cookie == buffer) {
+			iss.close();
+			return "";
+		}
+	}
+	iss.close();
+
 	std::fstream fs;
 	fs.open("default.d/cookies", std::ios::app);
 	fs << cookie << "\n";
@@ -188,7 +199,9 @@ void Response::to_string_get(Client *cl, std::string path)
   this->_header += std::string("Accept-Ranges: bytes") + "\r\n";
   this->_header += "Content-Type: " + cl->_req->getContentType(path) + "\r\n";
   this->_header += "Content-Length: " + _to_string(_body_size) + "\r\n";
-	this->_header += "Set-Cookies: " + set_cookies() + "\r\n";
+	std::string cookie = set_cookies();
+	if (cookie != "")
+		this->_header += "Set-Cookies: " + cookie + "\r\n";
   this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
 
@@ -205,7 +218,6 @@ void Response::handleFileRequest(Client *cl, std::string url)
 {
   if (access(url.c_str(), F_OK) == -1)
   {
-    std::cout << url << std::endl;
     this->_status_code = NOT_FOUND;
 		not_found(cl);
   }
@@ -239,11 +251,31 @@ void Response::handleFileRequest(Client *cl, std::string url)
   }
 }
 
+void parse_cgi_file(std::string filename) {
+	std::ifstream iss;
+	iss.open(filename.c_str());
+	std::string buffer;
+	std::getline(iss, buffer, '\0');
+	iss.close();
+
+	std::cout << "BEFORE: \n" << buffer << std::endl << std::endl;
+
+	buffer = buffer.substr(buffer.find("<!DOCTYPE"));
+
+	std::cout << "AFTER: \n" << buffer << std::endl << std::endl;
+
+	std::ofstream oss;
+	oss.open(filename.c_str(), std::ios::trunc);
+	oss << buffer;
+	oss.close();
+}
+
 void Response::get_body_content(std::string url) {
 	std::string ex = url.substr(url.find_last_of(".") + 1);
 	if (ex == "php" || ex == "py") {
 		cgi_exec(url, _client);
 		if (_client->stats) {
+			parse_cgi_file(_client->filename);
 			std::ifstream iss;
 			iss.open(_client->filename.c_str());
 			std::getline(iss, _body, '\0');

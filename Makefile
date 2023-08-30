@@ -23,20 +23,20 @@ OBJ = $(SRC:.cpp=.o)
 all: $(NAME)
 
 %.o: %.cpp
-	@echo -e $(GRAY) $(ITALIC) "Making .. $< " $(NONE)
+	@echo $(GRAY) $(ITALIC) "Making .. $< " $(NONE)
 	@c++ $(CPPFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ)
 	@c++ $(CPPFLAGS) $^ -o $(NAME)
-	@echo -e $(GREEN) $(ITALIC) "Compiled ..." $(NONE)
+	@echo $(GREEN) $(ITALIC) "Compiled ..." $(NONE)
 
 clean:
 	@rm -rf $(OBJ)
-	@echo -e $(GREEN) $(ITALIC) "Objects removed ..." $(NONE)
+	@echo $(GREEN) $(ITALIC) "Objects removed ..." $(NONE)
 
 fclean: clean
 	@rm -rf $(NAME)
-	@echo -e $(GREEN) $(ITALIC) "Cleaned ..." $(NONE)
+	@echo $(GREEN) $(ITALIC) "Cleaned ..." $(NONE)
 
 re: fclean all
 
