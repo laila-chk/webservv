@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:11:54 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/29 15:30:30 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/30 19:11:34 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ class Request {
 
         void    get_request_body(SOCK_FD & _socket, bool & _done_recv, std::string path);
         void    write_body_chunk(bool & _done_recv, std::string path);
+
+				std::vector<std::string> get_start_line(void);
 
         std::string get_method(void);
         std::string get_url(void);

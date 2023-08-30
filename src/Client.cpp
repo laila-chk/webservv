@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/29 16:14:50 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/30 19:12:15 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,10 @@ static int _stoi(std::string str) {
 	return nbr;
 }
 
+std::vector<std::string> Request::get_start_line(void) {
+	return _start_line;
+}
+
 bool    Client::done_cgi(void){
   return  _done_cgi;
 }
@@ -74,9 +78,7 @@ void    Client::recieve(void) {
       return ;
   if (!_req->recieve_header()) {
     _req->get_request_header(_socket, _done_recv);
-		// if (_done_recv)
-			// return;
-    get_matched_location();
+		get_matched_location();
     if (!_matched) {
       _done_recv = true;
       return;
@@ -103,6 +105,8 @@ void    Client::recieve(void) {
 
 // set the mathced location
 void  Client::get_matched_location() {
+	if (_req->get_start_line().size() != 3)
+		return;
   std::vector<locations>::iterator it;
   std::vector<locations> loc = _cluster->get_config().loc;
   std::string search = _req->get_url();
