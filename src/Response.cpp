@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 21:15:03 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/30 22:10:03 by lchokri          ###   ########.fr       */
+/*   Updated: 2023/08/31 12:13:51 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,7 +170,7 @@ std::string set_cookies() {
 	while (std::getline(iss, buffer)) {
 		if (cookie == buffer) {
 			iss.close();
-			return "";
+			return  "";
 		}
 	}
 	iss.close();
@@ -200,8 +200,8 @@ void Response::to_string_get(Client *cl, std::string path)
   this->_header += "Content-Type: " + cl->_req->getContentType(path) + "\r\n";
   this->_header += "Content-Length: " + _to_string(_body_size) + "\r\n";
 	std::string cookie = set_cookies();
-//	if (cookie != "")
-		this->_header += "Set-Cookies: " + cookie + "\r\n";
+if (cookie != "")
+		this->_header += "Set-Cookie: " + cookie + "\r\n";
   this->_header += std::string("Connection: close") + "\r\n\r\n";
 }
 

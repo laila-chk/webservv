@@ -6,13 +6,13 @@ import cgi, cgitb
 form = cgi.FieldStorage() 
 
 # Get data from fields
-first_name = form.getvalue('first_name')
-last_name  = form.getvalue('last_name')
+n = form.getvalue('n')
+l = form.getvalue('l')
 print ("<html>")
 print ("<head>")
 print ("<title>Hello & CGI Program</title>")
 print ("</head>")
 print ("<body>")
-print ("<h2>Hello %s %s</h2><br>" % (first_name, last_name))
+print ("<h2>Hello %s %s</h2><br>" % (n, l))
 print ("</body>")
 print ("</html>")

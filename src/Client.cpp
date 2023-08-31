@@ -6,7 +6,7 @@
 /*   By: mtellami <mtellami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/23 08:42:38 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/30 19:12:15 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/31 12:06:16 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,9 @@ void    Client::recieve(void) {
     if (_req->get_method() == "POST" && _stoi(_req->get_req_header().find("Content-Length")->second) \
       > _cluster->get_config().client_max_body_size) {
       _req->payload_is_too_large(true);
+			char b[2];
+			for (int i = 0; i < _stoi(_req->get_req_header().find("Content-Length")->second); i++)
+				recv(_socket, b, 1, 0);
       _done_recv = true;
     }
   } else {

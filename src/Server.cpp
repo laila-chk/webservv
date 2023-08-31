@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:11:22 by mtellami          #+#    #+#             */
-/*   Updated: 2023/08/30 12:47:52 by mtellami         ###   ########.fr       */
+/*   Updated: 2023/08/30 22:58:17 by mtellami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ Server::Server(void) {
     _nfds = 0;
     FD_ZERO(&_readfds);
     FD_ZERO(&_writefds);
+		unlink("default.d/cookies");
 }
 
 // Destructor
